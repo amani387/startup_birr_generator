@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" role="img" aria-label="Top Mela">
+  <defs>
+    <linearGradient id="tm-bg" x1="16" y1="8" x2="112" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1a1714"/>
+      <stop offset="1" stop-color="#0a0908"/>
+    </linearGradient>
+    <linearGradient id="tm-gold" x1="32" y1="88" x2="96" y2="24" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#a67c00"/>
+      <stop offset="0.5" stop-color="#e4b429"/>
+      <stop offset="1" stop-color="#f5d76e"/>
+    </linearGradient>
+    <linearGradient id="tm-gold-soft" x1="40" y1="40" x2="88" y2="88" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#e4b429" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#e4b429" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- Unique squircle with clipped top peak -->
+  <path d="M64 8C92 8 112 28 112 56V88C112 108 96 120 64 120C32 120 16 108 16 88V56C16 28 36 8 64 8Z" fill="url(#tm-bg)"/>
+  <path d="M64 8C92 8 112 28 112 56V88C112 108 96 120 64 120C32 120 16 108 16 88V56C16 28 36 8 64 8Z" stroke="url(#tm-gold)" stroke-width="2.5"/>
+  <!-- Soft glow -->
+  <ellipse cx="64" cy="52" rx="36" ry="28" fill="url(#tm-gold-soft)"/>
+  <!-- Ascending bars (earnings) + peak — unique TM mark -->
+  <path d="M38 82V58L48 68V82H38Z" fill="url(#tm-gold)" opacity="0.55"/>
+  <path d="M54 82V44L64 54V82H54Z" fill="url(#tm-gold)" opacity="0.8"/>
+  <path d="M70 82V32L80 42V82H70Z" fill="url(#tm-gold)"/>
+  <!-- Top peak diamond -->
+  <path d="M64 22L72 34H56L64 22Z" fill="#f5d76e"/>
+  <!-- Horizontal baseline -->
+  <path d="M34 86H94" stroke="#e4b429" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+</svg>
