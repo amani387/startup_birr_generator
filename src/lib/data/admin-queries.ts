@@ -91,16 +91,30 @@ export async function getAdminPendingDeposits(): Promise<AdminDepositRow[]> {
   if (!isAdminConfigured()) return [];
 
   const admin = createAdminClient();
-  const { data } = await admin
+  const { data, error } = await admin
     .from("deposits")
     .select(
-      "id, amount, payment_method, status, screenshot_url, transaction_ref, created_at, user_id, profiles(full_name, email)"
+      "id, amount, payment_method, status, screenshot_url, transaction_ref, created_at, user_id"
     )
     .eq("status", "pending")
     .order("created_at", { ascending: false })
     .limit(50);
 
+  if (error) {
+    console.error("getAdminPendingDeposits:", error.message);
+    return [];
+  }
   if (!data?.length) return [];
+
+  const userIds = [...new Set(data.map((d) => d.user_id))];
+  const { data: profileRows } = await admin
+    .from("profiles")
+    .select("id, full_name, email")
+    .in("id", userIds);
+
+  const profileMap = new Map(
+    (profileRows ?? []).map((p) => [p.id, { full_name: p.full_name, email: p.email }])
+  );
 
   const rows: AdminDepositRow[] = [];
   for (const deposit of data) {
@@ -112,7 +126,6 @@ export async function getAdminPendingDeposits(): Promise<AdminDepositRow[]> {
       screenshotSignedUrl = signed?.signedUrl ?? null;
     }
 
-    const profile = deposit.profiles;
     rows.push({
       id: deposit.id,
       amount: Number(deposit.amount),
@@ -122,7 +135,7 @@ export async function getAdminPendingDeposits(): Promise<AdminDepositRow[]> {
       transaction_ref: deposit.transaction_ref,
       created_at: deposit.created_at,
       user_id: deposit.user_id,
-      profiles: Array.isArray(profile) ? profile[0] ?? null : profile,
+      profiles: profileMap.get(deposit.user_id) ?? null,
       screenshotSignedUrl,
     });
   }
@@ -134,19 +147,35 @@ export async function getAdminPendingWithdrawals() {
   if (!isAdminConfigured()) return [];
 
   const admin = createAdminClient();
-  const { data } = await admin
+  const { data, error } = await admin
     .from("withdrawals")
     .select(
-      "id, amount, payment_method, account_holder, account_number, status, created_at, user_id, profiles(full_name, email)"
+      "id, amount, payment_method, account_holder, account_number, status, created_at, user_id"
     )
     .eq("status", "pending")
     .order("created_at", { ascending: false })
     .limit(50);
 
-  return (data ?? []).map((row) => ({
+  if (error) {
+    console.error("getAdminPendingWithdrawals:", error.message);
+    return [];
+  }
+  if (!data?.length) return [];
+
+  const userIds = [...new Set(data.map((w) => w.user_id))];
+  const { data: profileRows } = await admin
+    .from("profiles")
+    .select("id, full_name, email")
+    .in("id", userIds);
+
+  const profileMap = new Map(
+    (profileRows ?? []).map((p) => [p.id, { full_name: p.full_name, email: p.email }])
+  );
+
+  return data.map((row) => ({
     ...row,
     amount: Number(row.amount),
-    profiles: Array.isArray(row.profiles) ? row.profiles[0] ?? null : row.profiles,
+    profiles: profileMap.get(row.user_id) ?? null,
   }));
 }
 
@@ -175,17 +204,31 @@ export async function getAdminRecentDeposits(limit = 10) {
   if (!isAdminConfigured()) return [];
 
   const admin = createAdminClient();
-  const { data } = await admin
+  const { data, error } = await admin
     .from("deposits")
-    .select(
-      "id, amount, payment_method, status, created_at, profiles(full_name)"
-    )
+    .select("id, amount, payment_method, status, created_at, user_id")
     .order("created_at", { ascending: false })
     .limit(limit);
 
-  return (data ?? []).map((row) => ({
+  if (error) {
+    console.error("getAdminRecentDeposits:", error.message);
+    return [];
+  }
+  if (!data?.length) return [];
+
+  const userIds = [...new Set(data.map((d) => d.user_id))];
+  const { data: profileRows } = await admin
+    .from("profiles")
+    .select("id, full_name")
+    .in("id", userIds);
+
+  const profileMap = new Map(
+    (profileRows ?? []).map((p) => [p.id, { full_name: p.full_name }])
+  );
+
+  return data.map((row) => ({
     ...row,
     amount: Number(row.amount),
-    profiles: Array.isArray(row.profiles) ? row.profiles[0] ?? null : row.profiles,
+    profiles: profileMap.get(row.user_id) ?? null,
   }));
 }
