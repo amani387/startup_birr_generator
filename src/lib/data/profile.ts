@@ -51,8 +51,18 @@ export async function requireProfile(): Promise<Profile> {
   return profile;
 }
 
+export function getPostLoginPath(role: Profile["role"]): string {
+  return role === "admin" ? "/admin" : "/dashboard";
+}
+
+export async function requireAdmin(): Promise<Profile> {
+  const profile = await requireProfile();
+  if (profile.role !== "admin") redirect("/dashboard");
+  return profile;
+}
+
 export function getVipProgress(profile: Profile, nextPlanPrice: number | null) {
-  if (!nextPlanPrice || profile.vip_level >= 5) {
+  if (!nextPlanPrice || profile.vip_level >= 6) {
     return { progressPercent: 100, amountToNext: 0 };
   }
 

@@ -1,3 +1,4 @@
+import { AuthPageShell } from "@/components/auth/auth-page-shell";
 import { RegisterForm } from "@/components/auth/register-form";
 
 type RegisterPageProps = {
@@ -6,5 +7,9 @@ type RegisterPageProps = {
 
 export default async function RegisterPage({ searchParams }: RegisterPageProps) {
   const params = await searchParams;
-  return <RegisterForm defaultReferralCode={params.ref} />;
+  return (
+    <AuthPageShell>
+      <RegisterForm defaultReferralCode={params.ref} />
+    </AuthPageShell>
+  );
 }

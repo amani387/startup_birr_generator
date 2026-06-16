@@ -7,13 +7,24 @@ type StatCardProps = {
   value: string;
   icon: LucideIcon;
   highlight?: boolean;
+  className?: string;
 };
 
-export function StatCard({ title, value, icon: Icon, highlight }: StatCardProps) {
+export function StatCard({
+  title,
+  value,
+  icon: Icon,
+  highlight,
+  className,
+}: StatCardProps) {
   return (
     <Card
       padding="sm"
-      className={cn(highlight && "accent-glow border-primary/25")}
+      className={cn(
+        "transition-transform duration-200 hover:scale-[1.01]",
+        highlight && "accent-glow border-primary/25 gold-glow-sm",
+        className
+      )}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
@@ -22,14 +33,19 @@ export function StatCard({ title, value, icon: Icon, highlight }: StatCardProps)
           </p>
           <p
             className={cn(
-              "mt-2 truncate text-xl font-bold tracking-tight sm:text-2xl",
+              "mt-2 truncate font-display text-xl font-bold tracking-tight sm:text-2xl",
               highlight ? "text-primary" : "text-foreground"
             )}
           >
             {value}
           </p>
         </div>
-        <div className="shrink-0 rounded-xl bg-primary-dim p-2.5 sm:p-3">
+        <div
+          className={cn(
+            "shrink-0 rounded-xl p-2.5 sm:p-3",
+            highlight ? "bg-primary/15 gold-glow-sm" : "bg-primary-dim"
+          )}
+        >
           <Icon className="h-5 w-5 text-primary" />
         </div>
       </div>

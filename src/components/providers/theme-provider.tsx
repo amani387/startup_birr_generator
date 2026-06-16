@@ -24,8 +24,24 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 function applyTheme(theme: Theme) {
-  document.documentElement.classList.toggle("dark", theme === "dark");
-  document.documentElement.classList.add("transition-theme");
+  const root = document.documentElement;
+  if (theme === "dark") {
+    root.classList.add("dark");
+  } else {
+    root.classList.remove("dark");
+  }
+  root.classList.add("transition-theme");
+  root.style.colorScheme = theme;
+}
+
+function readStoredTheme(): Theme | null {
+  try {
+    const stored = localStorage.getItem("theme");
+    if (stored === "light" || stored === "dark") return stored;
+  } catch {
+    /* ignore */
+  }
+  return null;
 }
 
 export function ThemeProvider({
@@ -39,6 +55,14 @@ export function ThemeProvider({
   const [theme, setThemeState] = useState<Theme>(initialTheme);
   const [isPending, startTransition] = useTransition();
 
+  // On mount: localStorage wins over server cookie (prevents flash back to dark)
+  useEffect(() => {
+    const stored = readStoredTheme();
+    const resolved = stored ?? initialTheme;
+    setThemeState(resolved);
+    applyTheme(resolved);
+  }, [initialTheme]);
+
   useEffect(() => {
     applyTheme(theme);
   }, [theme]);
@@ -46,6 +70,7 @@ export function ThemeProvider({
   const setTheme = useCallback(
     (next: Theme) => {
       setThemeState(next);
+      applyTheme(next);
       try {
         localStorage.setItem("theme", next);
       } catch {

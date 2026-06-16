@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
+import { getPostLoginPath } from "@/lib/data/profile";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/dashboard";
+  const next = searchParams.get("next");
   const referralCode = searchParams.get("referral_code");
 
   if (code) {
@@ -17,7 +18,19 @@ export async function GET(request: Request) {
           ref_code: referralCode,
         });
       }
-      return NextResponse.redirect(`${origin}${next}`);
+
+      if (next) {
+        return NextResponse.redirect(`${origin}${next}`);
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", (await supabase.auth.getUser()).data.user?.id ?? "")
+        .maybeSingle();
+
+      const destination = getPostLoginPath(profile?.role === "admin" ? "admin" : "user");
+      return NextResponse.redirect(`${origin}${destination}`);
     }
   }
 

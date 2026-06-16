@@ -46,27 +46,32 @@ export function createTranslator(dict: Dictionary) {
     getNestedValue(dict as unknown as Record<string, unknown>, key);
 }
 
-export const NAV_KEYS = [
+/** Desktop top bar — reordered per Aureate spec */
+export const DESKTOP_NAV = [
   { href: "/dashboard", key: "nav.dashboard", icon: "LayoutDashboard" },
-  { href: "/dashboard/vip-packages", key: "nav.vipPackages", icon: "Crown" },
-  { href: "/dashboard/deposits", key: "nav.deposits", icon: "ArrowDownToLine" },
+  { href: "/dashboard/vip-packages", key: "nav.portfolio", icon: "Briefcase" },
+  { href: "/dashboard/deposits", key: "nav.market", icon: "TrendingUp" },
+  { href: "/dashboard/referral", key: "nav.support", icon: "Headphones" },
+] as const;
+
+/** Mobile floating pill nav */
+export const MOBILE_NAV = [
+  { href: "/dashboard", key: "nav.home", icon: "Home" },
+  { href: "/dashboard/vip-packages", key: "nav.vip", icon: "Crown" },
+  { href: "/dashboard/deposits", key: "nav.wallet", icon: "Wallet" },
+  { href: "/dashboard/affiliate", key: "nav.network", icon: "Share2" },
+  { href: "/dashboard/profile", key: "nav.profile", icon: "User" },
+] as const;
+
+/** Overflow pages — profile drawer / more menu */
+export const SECONDARY_NAV = [
   { href: "/dashboard/withdrawals", key: "nav.withdrawals", icon: "ArrowUpFromLine" },
+  { href: "/dashboard/transactions", key: "nav.transactions", icon: "History" },
+  { href: "/dashboard/vip-upgrades", key: "nav.vipUpgrades", icon: "Sparkles" },
   {
     href: "/dashboard/withdrawal-settings",
     key: "nav.withdrawalSettings",
     icon: "Settings",
   },
-  { href: "/dashboard/referral", key: "nav.referral", icon: "Users" },
   { href: "/dashboard/affiliate", key: "nav.affiliate", icon: "Network" },
-  { href: "/dashboard/vip-upgrades", key: "nav.vipUpgrades", icon: "TrendingUp" },
-  { href: "/dashboard/transactions", key: "nav.transactions", icon: "History" },
-  { href: "/dashboard/profile", key: "nav.profile", icon: "User" },
-] as const;
-
-export const MOBILE_NAV_KEYS = [
-  { href: "/dashboard", key: "nav.dashboard", icon: "LayoutDashboard" },
-  { href: "/dashboard/vip-packages", key: "nav.vipPackages", icon: "Crown" },
-  { href: "/dashboard/deposits", key: "nav.deposits", icon: "ArrowDownToLine" },
-  { href: "/dashboard/referral", key: "nav.referral", icon: "Users" },
-  { href: "/dashboard/profile", key: "nav.profile", icon: "User" },
 ] as const;

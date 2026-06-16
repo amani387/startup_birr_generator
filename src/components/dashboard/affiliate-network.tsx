@@ -37,14 +37,14 @@ export function AffiliateNetwork({
 
   return (
     <>
-      <div className="flex flex-wrap gap-2">
+      <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
         {LEVELS.map((level) => (
           <button
             key={level.id}
             type="button"
             onClick={() => setActiveLevel(level.id)}
             className={cn(
-              "rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200",
+              "shrink-0 rounded-lg px-3 py-2 text-xs font-semibold transition-all duration-200 sm:px-4 sm:text-sm",
               activeLevel === level.id
                 ? "bg-primary text-black"
                 : "border border-white/10 text-muted hover:text-foreground"
@@ -91,21 +91,23 @@ export function AffiliateNetwork({
         </div>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
         <h3 className="mb-4 font-bold">Network Tree</h3>
-        <div className="flex flex-col items-center py-8">
+        <div className="flex flex-col items-center py-6 sm:py-8">
           <div className="rounded-lg border border-primary/30 bg-primary/10 px-6 py-3 font-bold text-primary">
             You
           </div>
           <div className="my-4 h-8 w-px bg-white/20" />
-          <div className="grid grid-cols-3 gap-8 text-center">
+          <div className="grid w-full max-w-full grid-cols-3 gap-2 sm:gap-4 md:gap-6">
             {LEVELS.map((level) => (
-              <div key={level.id}>
-                <div className="rounded-lg border border-white/10 bg-surface-bright px-4 py-2 text-sm">
-                  Level {level.id}
-                  <p className="text-xs text-primary">{level.commission}% commission</p>
+              <div key={level.id} className="min-w-0">
+                <div className="rounded-lg border border-white/10 bg-surface-bright px-2 py-2 text-center text-xs sm:px-3 sm:py-2.5 sm:text-sm">
+                  <p className="font-medium">Level {level.id}</p>
+                  <p className="mt-0.5 text-[10px] text-primary sm:text-xs">
+                    {level.commission}% commission
+                  </p>
                 </div>
-                <p className="mt-2 text-xs text-muted">
+                <p className="mt-2 truncate text-center text-[10px] text-muted sm:text-xs">
                   {counts[level.id]} members
                 </p>
               </div>

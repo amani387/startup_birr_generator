@@ -3,12 +3,12 @@ import { cn } from "@/lib/utils";
 
 const variants = {
   default:
-    "bg-primary text-[#14120f] shadow-[var(--shadow)] hover:brightness-105 active:scale-[0.98] dark:text-[#14120f]",
+    "bg-primary text-[#14120f] shadow-[var(--shadow)] hover:brightness-105 active:scale-95 dark:text-[#14120f]",
   outline:
-    "border border-primary/35 bg-transparent text-primary hover:bg-primary-dim active:scale-[0.98]",
+    "border border-primary/35 bg-transparent text-primary hover:bg-primary-dim active:scale-95",
   ghost:
-    "bg-transparent text-foreground hover:bg-foreground/5 active:scale-[0.98]",
-  danger: "bg-red-600 text-white hover:bg-red-500 active:scale-[0.98]",
+    "bg-transparent text-foreground hover:bg-foreground/5 active:scale-95",
+  danger: "bg-red-600 text-white hover:bg-red-500 active:scale-95",
 } as const;
 
 const sizes = {

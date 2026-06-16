@@ -1,18 +1,18 @@
 import { cookies } from "next/headers";
-import { Plus_Jakarta_Sans, Noto_Sans_Ethiopic, Syne } from "next/font/google";
+import { Inter, Montserrat, Noto_Sans_Ethiopic } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import { AppProviders } from "@/components/providers/app-providers";
 import type { Locale } from "@/lib/i18n/index";
 import "./globals.css";
 
-const jakarta = Plus_Jakarta_Sans({
-  variable: "--font-jakarta",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
 });
 
-const syne = Syne({
-  variable: "--font-syne",
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
   subsets: ["latin"],
   weight: ["600", "700", "800"],
 });
@@ -24,14 +24,14 @@ const notoEthiopic = Noto_Sans_Ethiopic({
 });
 
 export const metadata: Metadata = {
-  title: "Top Mela — VIP Membership & Earnings",
-  description: "Premium VIP membership and earnings platform in Birr",
+  title: "Birr Tera — VIP Membership & Earnings",
+  description: "Premium VIP membership and forex-style earnings platform in Birr",
   icons: {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
     apple: "/logo.svg",
     shortcut: "/icon.svg",
   },
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "Top Mela" },
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "Birr Tera" },
 };
 
 export const viewport: Viewport = {
@@ -39,8 +39,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f5f0" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0908" },
+    { media: "(prefers-color-scheme: light)", color: "#f8f9fb" },
+    { media: "(prefers-color-scheme: dark)", color: "#131313" },
   ],
 };
 
@@ -64,13 +64,13 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${jakarta.variable} ${syne.variable} ${notoEthiopic.variable} h-full ${theme === "dark" ? "dark" : ""}`}
+      className={`${inter.variable} ${montserrat.variable} ${notoEthiopic.variable} h-full ${theme === "dark" ? "dark" : ""}`}
       suppressHydrationWarning
     >
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme')||document.cookie.match(/theme=(light|dark)/)?.[1]||'light';document.documentElement.classList.toggle('dark',t==='dark')}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(!t){var m=document.cookie.match(/theme=(light|dark)/);t=m?m[1]:null}if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.classList.toggle('dark',t==='dark');document.documentElement.style.colorScheme=t}catch(e){document.documentElement.classList.remove('dark');document.documentElement.style.colorScheme='light'}})();`,
           }}
         />
       </head>

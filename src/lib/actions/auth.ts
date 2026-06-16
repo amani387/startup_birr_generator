@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getPostLoginPath, getCurrentProfile } from "@/lib/data/profile";
 import type { ActionResult } from "@/types/database";
 
 export async function login(
@@ -22,7 +23,8 @@ export async function login(
     return { error: error.message };
   }
 
-  redirect("/dashboard");
+  const profile = await getCurrentProfile();
+  redirect(getPostLoginPath(profile?.role ?? "user"));
 }
 
 export async function register(
@@ -59,7 +61,8 @@ export async function register(
     return { error: error.message };
   }
 
-  redirect("/dashboard");
+  const profile = await getCurrentProfile();
+  redirect(getPostLoginPath(profile?.role ?? "user"));
 }
 
 export async function forgotPassword(

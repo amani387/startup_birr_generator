@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { Crown } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/page-header";
+import { VipBuyButton } from "@/components/dashboard/vip-buy-button";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getReferralRewardForLevel } from "@/lib/constants";
 import { requireProfile } from "@/lib/data/profile";
 import { getVipPlans } from "@/lib/data/queries";
 import { formatBirr } from "@/lib/utils";
@@ -42,6 +44,7 @@ export default async function VipPackagesPage() {
           const canAfford = profile.balance >= plan.price;
           const shortfall = plan.price - profile.balance;
           const isCurrent = profile.vip_level === plan.level;
+          const referralReward = getReferralRewardForLevel(plan.level);
 
           return (
             <Card
@@ -61,24 +64,26 @@ export default async function VipPackagesPage() {
                 <li>{plan.daily_income} Birr daily earnings</li>
                 <li>{plan.duration_days} days earning period</li>
                 <li>Total return: {formatBirr(plan.total_return)}</li>
+                <li className="text-primary">
+                  Referral reward: {formatBirr(referralReward)} (15%)
+                </li>
               </ul>
-              {!canAfford && (
+              {!canAfford && !isCurrent && (
                 <p className="mt-4 rounded-lg bg-primary/10 px-3 py-2 text-xs text-primary">
                   Need {formatBirr(shortfall)} more Birr
                 </p>
               )}
               {isCurrent && (
-                <p className="mt-4 rounded-lg bg-green-500/10 px-3 py-2 text-xs text-green-400">
+                <p className="mt-4 rounded-lg bg-green-500/10 px-3 py-2 text-xs text-green-500">
                   Active Membership
                 </p>
               )}
-              <Button
-                variant={canAfford && !isCurrent ? "default" : "outline"}
-                className="mt-auto w-full pt-4"
-                disabled={!canAfford || isCurrent}
-              >
-                {isCurrent ? "Current Plan" : `Buy ${plan.name}`}
-              </Button>
+              <VipBuyButton
+                planId={plan.id}
+                planName={plan.name}
+                disabled={!canAfford}
+                isCurrent={isCurrent}
+              />
             </Card>
           );
         })}

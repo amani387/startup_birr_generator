@@ -1,17 +1,11 @@
 import { format } from "date-fns";
-import { Building2 } from "lucide-react";
+import { DepositFlow } from "@/components/dashboard/deposit-flow";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { requireProfile } from "@/lib/data/profile";
 import { getDeposits } from "@/lib/data/queries";
 import { formatBirr } from "@/lib/utils";
-
-const PAYMENT_METHODS = [
-  { id: "telebirr", name: "Telebirr (Ethio Telecom)", account: "0929825757" },
-  { id: "chapa", name: "Chapa", account: "Via Chapa gateway" },
-  { id: "bank", name: "Bank Transfer", account: "Contact support for details" },
-];
 
 export default async function DepositsPage() {
   const profile = await requireProfile();
@@ -28,7 +22,7 @@ export default async function DepositsPage() {
       />
 
       <Card>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-sm text-muted">Your Balance</p>
             <p className="text-2xl font-bold text-primary">
@@ -39,25 +33,7 @@ export default async function DepositsPage() {
         </div>
       </Card>
 
-      <div className="space-y-3">
-        {PAYMENT_METHODS.map((method) => (
-          <Card
-            key={method.id}
-            className="flex cursor-pointer items-center justify-between transition-colors hover:border-primary/30"
-          >
-            <div className="flex items-center gap-4">
-              <div className="rounded-lg bg-primary/10 p-3">
-                <Building2 className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="font-semibold">{method.name}</p>
-                <p className="text-sm text-muted">{method.account}</p>
-              </div>
-            </div>
-            <span className="text-muted">›</span>
-          </Card>
-        ))}
-      </div>
+      <DepositFlow />
 
       <Card>
         <h3 className="mb-4 font-bold">Deposit History</h3>
