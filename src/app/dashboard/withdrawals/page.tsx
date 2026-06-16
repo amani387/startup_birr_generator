@@ -2,18 +2,24 @@ import { format } from "date-fns";
 import { Clock, Target, Wallet } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { StatCard } from "@/components/dashboard/stat-card";
+import { WithdrawalForm } from "@/components/dashboard/withdrawal-form";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { WITHDRAWAL_RULES } from "@/lib/constants";
 import { requireProfile } from "@/lib/data/profile";
-import { getPlatformSetting, getWithdrawals } from "@/lib/data/queries";
+import {
+  getPlatformSetting,
+  getWithdrawalSettings,
+  getWithdrawals,
+} from "@/lib/data/queries";
 import { formatBirr } from "@/lib/utils";
 
 export default async function WithdrawalsPage() {
   const profile = await requireProfile();
-  const withdrawals = await getWithdrawals(profile.id);
+  const [withdrawals, settings] = await Promise.all([
+    getWithdrawals(profile.id),
+    getWithdrawalSettings(profile.id),
+  ]);
 
   const retentionPercent = await getPlatformSetting(
     "withdrawal_retention_percent",
@@ -58,7 +64,7 @@ export default async function WithdrawalsPage() {
 
       {!unlocked && (
         <Card className="border-red-500/20 bg-red-500/5">
-          <h3 className="font-bold text-red-400">Withdrawal not yet available</h3>
+          <h3 className="font-bold text-red-500">Withdrawal not yet available</h3>
           <p className="mt-2 text-sm text-muted">
             You need a total balance of at least {formatBirr(minUnlock)} to unlock
             withdrawals.
@@ -75,24 +81,13 @@ export default async function WithdrawalsPage() {
 
       <Card>
         <h3 className="mb-4 font-bold">New Withdrawal</h3>
-        <form className="space-y-4">
-          <Input
-            label="Amount (Birr)"
-            type="number"
-            placeholder={`Min ${minAmount} Birr`}
-            hint={`Max withdrawal: ${formatBirr(maxWithdrawal)} — ${retentionPercent}% retention required`}
-          />
-          <Input label="Payment Method" placeholder="Select your bank or wallet" />
-          <Input label="Account Holder Name" placeholder="Abebe Kebede" />
-          <Input
-            label="Account Number / Wallet Number"
-            placeholder="0911234567"
-            hint="Admin will send funds to this account upon approval"
-          />
-          <Button type="submit" disabled={!unlocked}>
-            Submit Withdrawal Request
-          </Button>
-        </form>
+        <WithdrawalForm
+          unlocked={unlocked}
+          maxWithdrawal={maxWithdrawal}
+          minAmount={minAmount}
+          retentionPercent={retentionPercent}
+          settings={settings}
+        />
       </Card>
 
       <Card>
@@ -105,7 +100,7 @@ export default async function WithdrawalsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/10 text-left text-muted">
+                <tr className="border-b border-border text-left text-muted">
                   <th className="pb-3 font-medium">Date</th>
                   <th className="pb-3 font-medium">Amount</th>
                   <th className="pb-3 font-medium">Method</th>
@@ -114,7 +109,7 @@ export default async function WithdrawalsPage() {
               </thead>
               <tbody>
                 {withdrawals.map((w) => (
-                  <tr key={w.id} className="border-b border-white/5">
+                  <tr key={w.id} className="border-b border-border/50">
                     <td className="py-3">
                       {format(new Date(w.created_at), "MMM d, yyyy")}
                     </td>

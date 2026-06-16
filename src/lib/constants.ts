@@ -55,19 +55,6 @@ export const DEPOSIT_PAYMENT_METHODS: DepositPaymentMethod[] = [
     ],
   },
   {
-    id: "chapa",
-    name: "Chapa",
-    bankName: "Chapa",
-    accountNumber: "Via Chapa gateway",
-    accountHolder: "Birr Tera",
-    instructions: [
-      "Complete payment through the Chapa checkout link",
-      "Transfer the exact VIP package amount",
-      "Take a screenshot of the payment confirmation",
-      "Press the button below and fill in your details",
-    ],
-  },
-  {
     id: "bank",
     name: "Bank Transfer",
     bankName: "Commercial Bank of Ethiopia",

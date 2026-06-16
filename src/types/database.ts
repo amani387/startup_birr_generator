@@ -36,6 +36,7 @@ export type VipPurchase = {
   started_at: string;
   expires_at: string;
   days_claimed: number;
+  last_vip_income_claim: string | null;
   status: "active" | "completed" | "cancelled";
   vip_plans?: VipPlan;
 };
@@ -79,6 +80,15 @@ export type ReferralMember = {
   email: string;
   vip_level: number;
   created_at: string;
+};
+
+export type ReferralCommission = {
+  id: string;
+  amount: number;
+  level: number;
+  commission_percent: number;
+  created_at: string;
+  source_user: { full_name: string; email: string } | null;
 };
 
 export type ActivityItem = {

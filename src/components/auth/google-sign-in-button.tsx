@@ -24,14 +24,13 @@ export function GoogleSignInButton({
 
     try {
       const supabase = createClient();
-      const appUrl =
-        process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin;
       const params = new URLSearchParams();
       if (referralCode?.trim()) {
         params.set("referral_code", referralCode.trim());
       }
       const query = params.toString();
-      const redirectTo = `${appUrl}/auth/callback${query ? `?${query}` : ""}`;
+      // Always use current browser origin so VPS/production OAuth redirects correctly
+      const redirectTo = `${window.location.origin}/auth/callback${query ? `?${query}` : ""}`;
 
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",

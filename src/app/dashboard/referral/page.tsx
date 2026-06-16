@@ -1,4 +1,5 @@
 import { ReferralCopySection } from "@/components/dashboard/referral-copy";
+import { ReferralCommissionHistory } from "@/components/dashboard/referral-commission-history";
 import { ReferralRewardsTable } from "@/components/dashboard/referral-rewards-table";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { StatCard } from "@/components/dashboard/stat-card";
@@ -36,6 +37,8 @@ export default async function ReferralPage() {
       <ReferralCopySection referralCode={profile.referral_code} referralLink={referralLink} />
 
       <ReferralRewardsTable />
+
+      <ReferralCommissionHistory />
 
       <Card>
         <h3 className="mb-4 font-bold">How It Works</h3>

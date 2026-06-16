@@ -21,6 +21,7 @@ export function LoginForm() {
   const t = useTranslation();
   const searchParams = useSearchParams();
   const callbackError = searchParams.get("error");
+  const errorDetails = searchParams.get("details");
 
   return (
     <Card padding="lg" className="mx-auto w-full max-w-md">
@@ -48,7 +49,11 @@ export function LoginForm() {
         <FormMessage
           result={
             callbackError === "auth_callback_failed"
-              ? { error: t("auth.googleError") }
+              ? {
+                  error: errorDetails
+                    ? decodeURIComponent(errorDetails)
+                    : t("auth.googleError"),
+                }
               : state
           }
         />

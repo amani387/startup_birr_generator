@@ -80,3 +80,20 @@ export function canClaimDailyReward(profile: Profile): boolean {
   const today = new Date().toISOString().slice(0, 10);
   return profile.last_daily_claim !== today;
 }
+
+export function canClaimVipIncome(
+  purchase: {
+    days_claimed: number;
+    last_vip_income_claim: string | null;
+    status: string;
+    expires_at: string;
+  },
+  durationDays: number
+): boolean {
+  if (purchase.status !== "active") return false;
+  if (new Date(purchase.expires_at) <= new Date()) return false;
+  if (purchase.days_claimed >= durationDays) return false;
+
+  const today = new Date().toISOString().slice(0, 10);
+  return purchase.last_vip_income_claim !== today;
+}

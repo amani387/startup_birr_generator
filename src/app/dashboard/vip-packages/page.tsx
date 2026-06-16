@@ -2,16 +2,22 @@ import Link from "next/link";
 import { Crown } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { VipBuyButton } from "@/components/dashboard/vip-buy-button";
+import { VipIncomeClaim } from "@/components/dashboard/vip-income-claim";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getReferralRewardForLevel } from "@/lib/constants";
-import { requireProfile } from "@/lib/data/profile";
-import { getVipPlans } from "@/lib/data/queries";
+import { canClaimVipIncome, requireProfile } from "@/lib/data/profile";
+import { getActiveVipPurchase, getVipPlans } from "@/lib/data/queries";
 import { formatBirr } from "@/lib/utils";
 
 export default async function VipPackagesPage() {
   const profile = await requireProfile();
-  const plans = await getVipPlans();
+  const [plans, activePurchase] = await Promise.all([
+    getVipPlans(),
+    getActiveVipPurchase(profile.id),
+  ]);
+
+  const durationDays = activePurchase?.vip_plans?.duration_days ?? 7;
 
   return (
     <div className="space-y-6">
@@ -19,6 +25,19 @@ export default async function VipPackagesPage() {
         title="VIP Packages"
         description="Choose a VIP package to start earning daily income."
       />
+
+      {activePurchase && (
+        <Card glow className="border-primary/20">
+          <VipIncomeClaim
+            planName={activePurchase.vip_plans?.name ?? "VIP"}
+            dailyIncome={activePurchase.daily_income}
+            daysClaimed={activePurchase.days_claimed}
+            durationDays={durationDays}
+            expiresAt={activePurchase.expires_at}
+            canClaim={canClaimVipIncome(activePurchase, durationDays)}
+          />
+        </Card>
+      )}
 
       <Card>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

@@ -11,12 +11,14 @@ import { format } from "date-fns";
 import { DailyRewardClaim } from "@/components/dashboard/daily-reward-claim";
 import { ForexMarketChart } from "@/components/dashboard/forex-market-chart";
 import { StatCard } from "@/components/dashboard/stat-card";
+import { VipIncomeClaim } from "@/components/dashboard/vip-income-claim";
 import { VipProgress } from "@/components/dashboard/vip-progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   canClaimDailyReward,
+  canClaimVipIncome,
   getVipProgress,
   requireProfile,
 } from "@/lib/data/profile";
@@ -284,26 +286,17 @@ export default async function DashboardPage() {
             </Card>
           ) : (
             <Card glow className="h-full border-primary/20">
-              <div className="flex h-full flex-col justify-between gap-4">
-                <div>
-                  <Badge status="active">Active</Badge>
-                  <h3 className="mt-3 font-display text-lg font-bold">
-                    {activePurchase.vip_plans?.name ?? "VIP"}
-                  </h3>
-                  <p className="mt-2 text-sm text-muted">
-                    {formatBirr(activePurchase.daily_income)}/day
-                  </p>
-                  <p className="text-xs text-muted">
-                    Expires{" "}
-                    {format(new Date(activePurchase.expires_at), "MMM d, yyyy")}
-                  </p>
-                </div>
-                <Link href="/dashboard/vip-packages">
-                  <Button variant="outline" className="w-full">
-                    {t("dashboard.buyVip")}
-                  </Button>
-                </Link>
-              </div>
+              <VipIncomeClaim
+                planName={activePurchase.vip_plans?.name ?? "VIP"}
+                dailyIncome={activePurchase.daily_income}
+                daysClaimed={activePurchase.days_claimed}
+                durationDays={activePurchase.vip_plans?.duration_days ?? 7}
+                expiresAt={activePurchase.expires_at}
+                canClaim={canClaimVipIncome(
+                  activePurchase,
+                  activePurchase.vip_plans?.duration_days ?? 7
+                )}
+              />
             </Card>
           )}
         </div>

@@ -4,6 +4,7 @@ import type {
   ActivityItem,
   Deposit,
   Earning,
+  ReferralCommission,
   ReferralMember,
   VipPlan,
   VipPurchase,
@@ -65,6 +66,7 @@ export async function getActiveVipPurchase(
     started_at: data.started_at,
     expires_at: data.expires_at,
     days_claimed: data.days_claimed,
+    last_vip_income_claim: data.last_vip_income_claim as string | null,
     status: data.status,
     vip_plans: data.vip_plans
       ? {
@@ -214,6 +216,30 @@ export async function getReferralStats(userId: string) {
     level3Count: l3.length,
     totalCommissions,
   };
+}
+
+export async function getReferralCommissions(
+  userId: string
+): Promise<ReferralCommission[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("earnings")
+    .select("id, amount, description, created_at")
+    .eq("user_id", userId)
+    .eq("type", "referral_commission")
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    amount: Number(row.amount),
+    level: 1,
+    commission_percent: 15,
+    created_at: row.created_at,
+    source_user: row.description
+      ? { full_name: row.description, email: "" }
+      : null,
+  }));
 }
 
 export async function getRecentActivity(userId: string): Promise<ActivityItem[]> {

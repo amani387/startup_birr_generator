@@ -74,7 +74,7 @@ export function RegisterForm({ defaultReferralCode }: RegisterFormProps) {
         <Input
           label={t("auth.referralCode")}
           name="referral_code"
-          placeholder="EP-XXXXXX"
+          placeholder="BT-XXXXXXXX"
           defaultValue={defaultReferralCode}
           hint={t("auth.referralHint")}
         />

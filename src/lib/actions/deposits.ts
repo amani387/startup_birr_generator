@@ -5,6 +5,15 @@ import { getCurrentProfile } from "@/lib/data/profile";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/types/database";
 
+const MAX_SCREENSHOT_BYTES = 5 * 1024 * 1024;
+const ALLOWED_TYPES = new Set([
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+]);
+
 export async function submitDeposit(
   _prev: ActionResult,
   formData: FormData
@@ -20,32 +29,45 @@ export async function submitDeposit(
   if (!amount || amount <= 0) return { error: "Enter a valid deposit amount." };
   if (!paymentMethod) return { error: "Payment method is required." };
 
-  let screenshotUrl: string | null = null;
+  if (!(screenshot instanceof File) || screenshot.size === 0) {
+    return { error: "Please attach a payment screenshot." };
+  }
 
-  if (screenshot instanceof File && screenshot.size > 0) {
-    const supabase = await createClient();
-    const ext = screenshot.name.split(".").pop()?.toLowerCase() ?? "jpg";
-    const path = `${profile.id}/${Date.now()}.${ext}`;
+  if (screenshot.size > MAX_SCREENSHOT_BYTES) {
+    return { error: "Screenshot must be 5 MB or smaller." };
+  }
 
-    const { error: uploadError } = await supabase.storage
-      .from("deposits")
-      .upload(path, screenshot, { contentType: screenshot.type });
-
-    if (uploadError) {
-      return {
-        error: "Could not upload screenshot. Ensure the deposits storage bucket exists in Supabase.",
-      };
-    }
-
-    screenshotUrl = path;
+  const contentType = screenshot.type || "image/jpeg";
+  if (!ALLOWED_TYPES.has(contentType)) {
+    return { error: "Screenshot must be a JPG, PNG, or WebP image." };
   }
 
   const supabase = await createClient();
+  const ext = screenshot.name.split(".").pop()?.toLowerCase() ?? "jpg";
+  const path = `${profile.id}/${Date.now()}.${ext}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("deposits")
+    .upload(path, screenshot, {
+      contentType,
+      upsert: false,
+    });
+
+  if (uploadError) {
+    if (uploadError.message.includes("Bucket not found")) {
+      return {
+        error:
+          "Storage is not configured. Ask admin to run migration 004_deposits_storage.sql in Supabase.",
+      };
+    }
+    return { error: `Upload failed: ${uploadError.message}` };
+  }
+
   const { error } = await supabase.from("deposits").insert({
     user_id: profile.id,
     amount,
     payment_method: paymentMethod,
-    screenshot_url: screenshotUrl,
+    screenshot_url: path,
     transaction_ref: transactionRef || null,
     status: "pending",
   });
@@ -55,5 +77,6 @@ export async function submitDeposit(
   revalidatePath("/dashboard/deposits");
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/transactions");
+  revalidatePath("/admin/deposits");
   return { success: "Deposit submitted! We will review it shortly." };
 }
