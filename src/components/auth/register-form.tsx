@@ -6,6 +6,7 @@ import { AuthDivider } from "@/components/auth/auth-divider";
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { register } from "@/lib/actions/auth";
+import { GOOGLE_AUTH_ENABLED } from "@/lib/constants";
 import { FormMessage } from "@/components/auth/form-message";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -41,9 +42,12 @@ export function RegisterForm({ defaultReferralCode }: RegisterFormProps) {
         </div>
       </div>
 
-      <GoogleSignInButton referralCode={defaultReferralCode} />
-
-      <AuthDivider />
+      {GOOGLE_AUTH_ENABLED && (
+        <>
+          <GoogleSignInButton referralCode={defaultReferralCode} />
+          <AuthDivider />
+        </>
+      )}
 
       <form action={action} className="space-y-5">
         <FormMessage result={state} />

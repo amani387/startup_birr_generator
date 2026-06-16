@@ -1,5 +1,8 @@
 export const APP_NAME = "Birr Tera";
 
+/** Set true after Google OAuth is configured in Supabase + Google Cloud. */
+export const GOOGLE_AUTH_ENABLED = false;
+
 export const WITHDRAWAL_RULES = {
   minBalanceToUnlock: 700,
   retentionPercent: 30,
