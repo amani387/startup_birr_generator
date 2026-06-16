@@ -78,7 +78,7 @@ export async function forgotPassword(
 
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: getAuthCallbackUrl("/dashboard/profile"),
+    redirectTo: getAuthCallbackUrl("/reset-password"),
   });
 
   if (error) {
@@ -86,6 +86,39 @@ export async function forgotPassword(
   }
 
   return { success: "Password reset link sent. Check your email." };
+}
+
+export async function resetPassword(
+  _prev: ActionResult,
+  formData: FormData
+): Promise<ActionResult> {
+  const newPassword = String(formData.get("new_password") ?? "");
+  const confirmPassword = String(formData.get("confirm_password") ?? "");
+
+  if (!newPassword || newPassword.length < 6) {
+    return { error: "New password must be at least 6 characters." };
+  }
+
+  if (newPassword !== confirmPassword) {
+    return { error: "Passwords do not match." };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Reset link expired. Please request a new one." };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  redirect("/dashboard");
 }
 
 export async function logout() {
