@@ -1,4 +1,6 @@
-/** Resolve public site origin (works behind nginx/reverse proxy on VPS). */
+import { getAppUrl, isLocalhostUrl } from "@/lib/app-url";
+
+/** Resolve public site origin from an incoming request (proxy-safe). */
 export function getSiteOrigin(request: Request): string {
   const url = new URL(request.url);
   const forwardedHost = request.headers.get("x-forwarded-host");
@@ -9,8 +11,11 @@ export function getSiteOrigin(request: Request): string {
     return `${proto}://${forwardedHost.split(",")[0].trim()}`;
   }
 
-  const envUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
-  if (envUrl) return envUrl;
+  const host = request.headers.get("host");
+  if (host && !isLocalhostUrl(host)) {
+    const proto = url.protocol.replace(":", "") || "http";
+    return `${proto}://${host.split(",")[0].trim()}`;
+  }
 
-  return url.origin;
+  return getAppUrl();
 }

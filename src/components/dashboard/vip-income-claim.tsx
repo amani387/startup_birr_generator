@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { Crown } from "lucide-react";
 import { claimVipDailyIncome } from "@/lib/actions/vip";
+import { useFeedback } from "@/components/providers/feedback-provider";
 import { Button } from "@/components/ui/button";
-import { cn, formatBirr } from "@/lib/utils";
+import { applyActionResult, getErrorMessage } from "@/lib/feedback";
+import { formatBirr } from "@/lib/utils";
 
 type VipIncomeClaimProps = {
   planName: string;
@@ -23,15 +25,17 @@ export function VipIncomeClaim({
   expiresAt,
   canClaim,
 }: VipIncomeClaimProps) {
+  const { showError, showSuccess } = useFeedback();
   const [pending, startTransition] = useTransition();
-  const [message, setMessage] = useState<string | null>(null);
-  const [isError, setIsError] = useState(false);
 
   function handleClaim() {
     startTransition(async () => {
-      const result = await claimVipDailyIncome();
-      setMessage(result.error ?? result.success ?? null);
-      setIsError(!!result.error);
+      try {
+        const result = await claimVipDailyIncome();
+        applyActionResult(result, { onError: showError, onSuccess: showSuccess });
+      } catch (err) {
+        showError(getErrorMessage(err));
+      }
     });
   }
 
@@ -49,7 +53,12 @@ export function VipIncomeClaim({
           {formatBirr(dailyIncome)}/day · Day {daysClaimed}/{durationDays}
         </p>
         <p className="text-xs text-muted">
-          Expires {new Date(expiresAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+          Expires{" "}
+          {new Date(expiresAt).toLocaleDateString(undefined, {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })}
         </p>
 
         <div className="mt-4">
@@ -64,18 +73,6 @@ export function VipIncomeClaim({
             />
           </div>
         </div>
-
-        {message && (
-          <p
-            className={cn(
-              "mt-3 text-xs",
-              isError ? "text-red-500" : "text-green-600 dark:text-green-400"
-            )}
-            role="alert"
-          >
-            {message}
-          </p>
-        )}
       </div>
 
       <Button

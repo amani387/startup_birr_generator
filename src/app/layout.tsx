@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { Inter, Montserrat, Noto_Sans_Ethiopic } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import { AppProviders } from "@/components/providers/app-providers";
+import { getAppUrl } from "@/lib/app-url";
 import type { Locale } from "@/lib/i18n/index";
 import "./globals.css";
 
@@ -24,6 +25,7 @@ const notoEthiopic = Noto_Sans_Ethiopic({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getAppUrl()),
   title: "Birr Tera — VIP Membership & Earnings",
   description: "Premium VIP membership and forex-style earnings platform in Birr",
   icons: {

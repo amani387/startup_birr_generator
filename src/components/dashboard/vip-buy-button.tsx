@@ -2,7 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { purchaseVipPlan } from "@/lib/actions/vip";
+import { useFeedback } from "@/components/providers/feedback-provider";
 import { Button } from "@/components/ui/button";
+import { applyActionResult, getErrorMessage } from "@/lib/feedback";
 
 type VipBuyButtonProps = {
   planId: string;
@@ -17,8 +19,8 @@ export function VipBuyButton({
   disabled,
   isCurrent,
 }: VipBuyButtonProps) {
+  const { showError, showSuccess } = useFeedback();
   const [pending, startTransition] = useTransition();
-  const [message, setMessage] = useState<string | null>(null);
 
   if (isCurrent) {
     return (
@@ -29,27 +31,22 @@ export function VipBuyButton({
   }
 
   return (
-    <div className="mt-auto w-full pt-4">
-      {message && (
-        <p
-          className={`mb-2 text-xs ${message.includes("success") || message.includes("purchased") ? "text-green-500" : "text-red-400"}`}
-        >
-          {message}
-        </p>
-      )}
-      <Button
-        variant={disabled ? "outline" : "default"}
-        className="w-full"
-        disabled={disabled || pending}
-        onClick={() =>
-          startTransition(async () => {
+    <Button
+      variant={disabled ? "outline" : "default"}
+      className="mt-auto w-full pt-4"
+      disabled={disabled || pending}
+      onClick={() =>
+        startTransition(async () => {
+          try {
             const result = await purchaseVipPlan(planId);
-            setMessage(result.success ?? result.error ?? null);
-          })
-        }
-      >
-        {pending ? "Processing..." : disabled ? "Insufficient Balance" : `Buy ${planName}`}
-      </Button>
-    </div>
+            applyActionResult(result, { onError: showError, onSuccess: showSuccess });
+          } catch (err) {
+            showError(getErrorMessage(err));
+          }
+        })
+      }
+    >
+      {pending ? "Processing..." : disabled ? "Insufficient Balance" : `Buy ${planName}`}
+    </Button>
   );
 }

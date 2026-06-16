@@ -1,21 +1,20 @@
 "use client";
 
 import type { ActionResult } from "@/types/database";
-import { cn } from "@/lib/utils";
+import { useActionResultFeedback } from "@/lib/hooks/use-action-result-feedback";
 
+/**
+ * Displays server action feedback as responsive toast popups.
+ * Keeps a screen-reader-only summary for accessibility.
+ */
 export function FormMessage({ result }: { result?: ActionResult }) {
+  useActionResultFeedback(result);
+
   if (!result?.error && !result?.success) return null;
 
   return (
-    <div
-      className={cn(
-        "rounded-lg px-4 py-3 text-sm",
-        result.error
-          ? "border border-red-500/30 bg-red-500/10 text-red-400"
-          : "border border-green-500/30 bg-green-500/10 text-green-400"
-      )}
-    >
+    <p className="sr-only" role="status" aria-live="polite">
       {result.error ?? result.success}
-    </div>
+    </p>
   );
 }

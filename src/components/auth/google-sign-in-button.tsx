@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { getClientAppUrl } from "@/lib/app-url";
 import { createClient } from "@/lib/supabase/client";
+import { useFeedback } from "@/components/providers/feedback-provider";
 import { useTranslation } from "@/components/providers/i18n-provider";
+import { getErrorMessage } from "@/lib/feedback";
 import { cn } from "@/lib/utils";
 
 type GoogleSignInButtonProps = {
@@ -15,12 +18,11 @@ export function GoogleSignInButton({
   className,
 }: GoogleSignInButtonProps) {
   const t = useTranslation();
+  const { showError } = useFeedback();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   async function handleGoogleSignIn() {
     setLoading(true);
-    setError(null);
 
     try {
       const supabase = createClient();
@@ -29,8 +31,7 @@ export function GoogleSignInButton({
         params.set("referral_code", referralCode.trim());
       }
       const query = params.toString();
-      // Always use current browser origin so VPS/production OAuth redirects correctly
-      const redirectTo = `${window.location.origin}/auth/callback${query ? `?${query}` : ""}`;
+      const redirectTo = `${getClientAppUrl()}/auth/callback${query ? `?${query}` : ""}`;
 
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -43,11 +44,11 @@ export function GoogleSignInButton({
       });
 
       if (oauthError) {
-        setError(oauthError.message);
+        showError(oauthError.message, "Google sign-in failed");
         setLoading(false);
       }
-    } catch {
-      setError(t("auth.googleError"));
+    } catch (err) {
+      showError(getErrorMessage(err, t("auth.googleError")), "Google sign-in failed");
       setLoading(false);
     }
   }
@@ -63,11 +64,6 @@ export function GoogleSignInButton({
         <GoogleIcon />
         {loading ? t("common.loading") : t("auth.continueWithGoogle")}
       </button>
-      {error && (
-        <p className="text-center text-xs text-red-500" role="alert">
-          {error}
-        </p>
-      )}
     </div>
   );
 }

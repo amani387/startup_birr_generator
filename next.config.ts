@@ -6,7 +6,12 @@ const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
   // Allow LAN/mobile testing in dev (fixes blocked HMR + blank client UI)
-  allowedDevOrigins: ["172.25.224.1", "localhost", "127.0.0.1"],
+  allowedDevOrigins: [
+    "172.25.224.1",
+    "localhost",
+    "127.0.0.1",
+    "213.254.179.94",
+  ],
   turbopack: {
     root: projectRoot,
   },

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useActionState } from "react";
+import { useActionState, useMemo } from "react";
 import { AuthDivider } from "@/components/auth/auth-divider";
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { BrandLogo } from "@/components/ui/brand-logo";
@@ -22,6 +22,21 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const callbackError = searchParams.get("error");
   const errorDetails = searchParams.get("details");
+
+  const formResult = useMemo(() => {
+    if (callbackError === "auth_callback_failed") {
+      let message = t("auth.googleError");
+      if (errorDetails) {
+        try {
+          message = decodeURIComponent(errorDetails);
+        } catch {
+          message = errorDetails;
+        }
+      }
+      return { error: message };
+    }
+    return state;
+  }, [callbackError, errorDetails, state, t]);
 
   return (
     <Card padding="lg" className="mx-auto w-full max-w-md">
@@ -46,17 +61,7 @@ export function LoginForm() {
       <AuthDivider />
 
       <form action={action} className="space-y-5">
-        <FormMessage
-          result={
-            callbackError === "auth_callback_failed"
-              ? {
-                  error: errorDetails
-                    ? decodeURIComponent(errorDetails)
-                    : t("auth.googleError"),
-                }
-              : state
-          }
-        />
+        <FormMessage result={formResult} />
         <Input
           label={t("auth.email")}
           name="email"

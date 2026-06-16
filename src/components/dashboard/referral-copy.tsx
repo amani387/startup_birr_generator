@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import { Copy, Download, Share2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
+import { useFeedback } from "@/components/providers/feedback-provider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getErrorMessage } from "@/lib/feedback";
 
 type ReferralCopySectionProps = {
   referralCode: string;
@@ -15,12 +16,15 @@ export function ReferralCopySection({
   referralCode,
   referralLink,
 }: ReferralCopySectionProps) {
-  const [copied, setCopied] = useState<"code" | "link" | null>(null);
+  const { showSuccess, showError } = useFeedback();
 
-  async function copy(text: string, type: "code" | "link") {
-    await navigator.clipboard.writeText(text);
-    setCopied(type);
-    setTimeout(() => setCopied(null), 2000);
+  async function copy(text: string, label: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      showSuccess(`${label} copied to clipboard.`);
+    } catch (err) {
+      showError(getErrorMessage(err, "Could not copy. Please copy manually."));
+    }
   }
 
   return (
@@ -34,15 +38,12 @@ export function ReferralCopySection({
               <span className="text-2xl font-bold text-primary">{referralCode}</span>
               <button
                 type="button"
-                onClick={() => copy(referralCode, "code")}
+                onClick={() => copy(referralCode, "Referral code")}
                 className="text-muted hover:text-primary"
                 aria-label="Copy referral code"
               >
                 <Copy className="h-4 w-4" />
               </button>
-              {copied === "code" && (
-                <span className="text-xs text-green-400">Copied!</span>
-              )}
             </div>
           </div>
           <div>
@@ -51,18 +52,15 @@ export function ReferralCopySection({
               <span className="flex-1 truncate text-sm">{referralLink}</span>
               <button
                 type="button"
-                onClick={() => copy(referralLink, "link")}
+                onClick={() => copy(referralLink, "Referral link")}
                 className="text-muted hover:text-primary"
                 aria-label="Copy referral link"
               >
                 <Copy className="h-4 w-4" />
               </button>
-              {copied === "link" && (
-                <span className="text-xs text-green-400">Copied!</span>
-              )}
             </div>
           </div>
-          <Button onClick={() => copy(referralLink, "link")}>
+          <Button onClick={() => copy(referralLink, "Referral link")}>
             <Share2 className="h-4 w-4" />
             Share Referral Link
           </Button>
@@ -72,7 +70,7 @@ export function ReferralCopySection({
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="flex flex-col items-center">
           <QRCodeSVG value={referralLink} size={180} bgColor="#1a1a1a" fgColor="#ffd700" />
-          <Button variant="outline" className="mt-4">
+          <Button variant="outline" className="mt-4" disabled>
             <Download className="h-4 w-4" />
             Download QR Code
           </Button>

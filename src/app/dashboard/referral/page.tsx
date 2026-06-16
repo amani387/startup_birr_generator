@@ -4,6 +4,7 @@ import { ReferralRewardsTable } from "@/components/dashboard/referral-rewards-ta
 import { PageHeader } from "@/components/dashboard/page-header";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { Card } from "@/components/ui/card";
+import { getAppUrl } from "@/lib/app-url";
 import { requireProfile } from "@/lib/data/profile";
 import { getReferralStats } from "@/lib/data/queries";
 import { formatBirr } from "@/lib/utils";
@@ -13,7 +14,7 @@ export default async function ReferralPage() {
   const profile = await requireProfile();
   const stats = await getReferralStats(profile.id);
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const appUrl = getAppUrl();
   const referralLink = `${appUrl}/ref/${profile.referral_code}`;
 
   return (

@@ -264,7 +264,7 @@ function DepositSubmitForm({ method, onBack, onSuccess }: DepositSubmitFormProps
 
       <Card>
         <form action={action} className="space-y-4">
-          <FormMessage result={state} />
+          <FormMessage result={state.error ? { error: state.error } : undefined} />
           <input type="hidden" name="payment_method" value={method.name} />
           <Input
             label="Amount (Birr)"

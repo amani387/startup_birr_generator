@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { Gift } from "lucide-react";
 import { claimDailyReward } from "@/lib/actions/profile";
+import { useFeedback } from "@/components/providers/feedback-provider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { applyActionResult, getErrorMessage } from "@/lib/feedback";
 import { cn } from "@/lib/utils";
 
 type DailyRewardClaimProps = {
@@ -20,15 +22,17 @@ export function DailyRewardClaim({
   maxStreak,
   canClaim,
 }: DailyRewardClaimProps) {
+  const { showError, showSuccess } = useFeedback();
   const [pending, startTransition] = useTransition();
-  const [message, setMessage] = useState<string | null>(null);
-  const [isError, setIsError] = useState(false);
 
   function handleClaim() {
     startTransition(async () => {
-      const result = await claimDailyReward();
-      setMessage(result.error ?? result.success ?? null);
-      setIsError(!!result.error);
+      try {
+        const result = await claimDailyReward();
+        applyActionResult(result, { onError: showError, onSuccess: showSuccess });
+      } catch (err) {
+        showError(getErrorMessage(err));
+      }
     });
   }
 
@@ -44,16 +48,6 @@ export function DailyRewardClaim({
             <p className="text-sm text-muted">
               Claim {rewardAmount} Birr bonus today
             </p>
-            {message && (
-              <p
-                className={cn(
-                  "mt-1 text-xs",
-                  isError ? "text-red-400" : "text-green-400"
-                )}
-              >
-                {message}
-              </p>
-            )}
           </div>
         </div>
         <Button

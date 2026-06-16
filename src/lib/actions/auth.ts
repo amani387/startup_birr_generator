@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { getAuthCallbackUrl } from "@/lib/app-url";
 import { createClient } from "@/lib/supabase/server";
 import { getPostLoginPath, getCurrentProfile } from "@/lib/data/profile";
 import type { ActionResult } from "@/types/database";
@@ -53,7 +54,7 @@ export async function register(
         full_name: fullName,
         ...(referralCode ? { referral_code: referralCode } : {}),
       },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/auth/callback`,
+      emailRedirectTo: getAuthCallbackUrl(),
     },
   });
 
@@ -77,7 +78,7 @@ export async function forgotPassword(
 
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/auth/callback?next=/dashboard/profile`,
+    redirectTo: getAuthCallbackUrl("/dashboard/profile"),
   });
 
   if (error) {
