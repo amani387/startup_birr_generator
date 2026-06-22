@@ -1,7 +1,7 @@
 export const APP_NAME = "Birr Tera";
 
-/** Set true after Google OAuth is configured in Supabase + Google Cloud. */
-export const GOOGLE_AUTH_ENABLED = false;
+/** Google sign-in shown as optional — requires Supabase Google provider setup. */
+export const GOOGLE_AUTH_ENABLED = true;
 
 export const WITHDRAWAL_RULES = {
   minBalanceToUnlock: 700,
@@ -19,14 +19,15 @@ export const VIP_TIERS = [
   { level: 6, name: "VIP 6", price: 38000, dailyIncome: 1357.14, durationDays: 7 },
 ] as const;
 
-/** Invitation reward when a referral buys a VIP package (15% of package price) */
-export const VIP_REFERRAL_REWARDS = VIP_TIERS.map((tier) => ({
-  level: tier.level,
-  name: tier.name,
-  packagePrice: tier.price,
-  reward: Math.round(tier.price * 0.15 * 100) / 100,
-  percent: 15,
-}));
+/** Invitation reward when a referral buys a VIP package (15%) */
+export const VIP_REFERRAL_REWARDS = [
+  { level: 1, name: "VIP 1", packagePrice: 650, reward: 97.5, percent: 15 },
+  { level: 2, name: "VIP 2", packagePrice: 2700, reward: 405, percent: 15 },
+  { level: 3, name: "VIP 3", packagePrice: 6400, reward: 960, percent: 15 },
+  { level: 4, name: "VIP 4", packagePrice: 13800, reward: 2070, percent: 15 },
+  { level: 5, name: "VIP 5", packagePrice: 24000, reward: 3600, percent: 15 },
+  { level: 6, name: "VIP 6", packagePrice: 38000, reward: 5700, percent: 15 },
+] as const;
 
 export const REFERRAL_COMMISSION = {
   level1: 15,

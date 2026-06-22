@@ -3,13 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import {
-  Briefcase,
-  Headphones,
-  LayoutDashboard,
-  TrendingUp,
-} from "lucide-react";
-import { BrandLogo } from "@/components/ui/brand-logo";
+import { BarChart3, Briefcase, Headphones, LayoutDashboard, TrendingUp } from "lucide-react";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { DESKTOP_NAV } from "@/lib/i18n/index";
@@ -48,8 +42,8 @@ export function TopNav({ userName, onOpenMore }: TopNavProps) {
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-6">
         <Link href="/dashboard" className="flex shrink-0 items-center gap-2.5">
-          <BrandLogo size={32} />
-          <span className="font-display text-lg font-bold text-primary">
+          <BarChart3 className="h-7 w-7 text-primary" strokeWidth={2.5} />
+          <span className="font-display text-lg font-bold text-foreground">
             {t("common.appName")}
           </span>
         </Link>
@@ -93,7 +87,7 @@ export function TopNav({ userName, onOpenMore }: TopNavProps) {
             href="/dashboard/profile"
             className="flex items-center gap-2 rounded-xl border border-border bg-surface-bright py-1.5 pl-1.5 pr-3 transition-colors hover:border-primary/30"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15 text-xs font-bold text-primary">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-xs font-bold text-white">
               {initials}
             </div>
             <span className="max-w-[88px] truncate text-sm font-medium">

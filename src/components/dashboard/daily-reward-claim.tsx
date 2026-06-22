@@ -77,8 +77,8 @@ export function DailyRewardClaim({
               className={cn(
                 "flex h-8 flex-1 items-center justify-center rounded-md text-xs font-bold",
                 i + 1 <= streakDay
-                  ? "bg-primary text-black"
-                  : "bg-white/10 text-muted"
+                  ? "bg-primary text-white"
+                  : "bg-surface-bright text-muted"
               )}
             >
               {i + 1}

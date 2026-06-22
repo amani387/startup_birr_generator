@@ -1,11 +1,22 @@
+import { AuthHeroPanel } from "@/components/auth/auth-hero-panel";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+
 type AuthPageShellProps = {
   children: React.ReactNode;
 };
 
 export function AuthPageShell({ children }: AuthPageShellProps) {
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-12">
-      <div className="w-full max-w-md">{children}</div>
+    <div className="flex min-h-dvh flex-col lg:flex-row">
+      <div className="flex flex-1 flex-col">
+        <div className="flex justify-end p-4 lg:absolute lg:right-auto lg:left-4 lg:top-4 lg:z-20">
+          <LanguageSwitcher compact />
+        </div>
+        <div className="flex flex-1 flex-col justify-center px-5 py-8 sm:px-10 lg:px-14 xl:px-20">
+          <div className="mx-auto w-full max-w-md">{children}</div>
+        </div>
+      </div>
+      <AuthHeroPanel />
     </div>
   );
 }

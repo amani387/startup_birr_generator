@@ -40,13 +40,13 @@ export function FloatingBottomNav() {
               {isActive && (
                 <motion.span
                   layoutId="nav-glow"
-                  className="absolute -bottom-0.5 h-1 w-1 rounded-full bg-primary gold-glow-sm"
+                  className="absolute -bottom-0.5 h-1 w-1 rounded-full bg-primary"
                 />
               )}
               <Icon
                 className={cn(
                   "h-5 w-5",
-                  isActive && "gold-glow-sm rounded-full"
+                  isActive && "text-primary"
                 )}
                 strokeWidth={isActive ? 2.5 : 2}
               />

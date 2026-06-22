@@ -24,7 +24,7 @@ export function VipBuyButton({
 
   if (isCurrent) {
     return (
-      <Button variant="outline" className="mt-auto w-full pt-4" disabled>
+      <Button variant="outline" className="w-full sm:w-auto" disabled>
         Current Plan
       </Button>
     );
@@ -33,7 +33,7 @@ export function VipBuyButton({
   return (
     <Button
       variant={disabled ? "outline" : "default"}
-      className="mt-auto w-full pt-4"
+      className="w-full sm:w-auto"
       disabled={disabled || pending}
       onClick={() =>
         startTransition(async () => {

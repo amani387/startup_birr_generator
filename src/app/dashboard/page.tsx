@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { DailyRewardClaim } from "@/components/dashboard/daily-reward-claim";
+import { DashboardTasks } from "@/components/dashboard/dashboard-tasks";
 import { ForexMarketChart } from "@/components/dashboard/forex-market-chart";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { VipIncomeClaim } from "@/components/dashboard/vip-income-claim";
@@ -72,9 +73,8 @@ export default async function DashboardPage() {
       {/* Portfolio hero — bento span */}
       <div className="bento-grid">
         <Card
-          glow
           padding="lg"
-          className="accent-glow gold-glow md:col-span-8"
+          className="md:col-span-8"
         >
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <div className="space-y-3">
@@ -114,39 +114,10 @@ export default async function DashboardPage() {
         </Card>
 
         <Card padding="md" className="md:col-span-4">
-          <h3 className="mb-4 font-display text-sm font-bold uppercase tracking-wider text-muted">
-            {t("dashboard.quickActions")}
-          </h3>
-          <div className="space-y-2">
-            {[
-              { label: t("dashboard.makeDeposit"), href: "/dashboard/deposits" },
-              {
-                label: t("dashboard.withdrawFunds"),
-                href: "/dashboard/withdrawals",
-              },
-              {
-                label: t("dashboard.buyVip"),
-                href: "/dashboard/vip-packages",
-              },
-              {
-                label: t("dashboard.referEarn"),
-                href: "/dashboard/referral",
-                accent: true,
-              },
-            ].map((action) => (
-              <Link
-                key={action.href}
-                href={action.href}
-                className={`block min-h-11 rounded-xl border px-4 py-3 text-sm font-medium transition-all duration-200 active:scale-95 ${
-                  action.accent
-                    ? "border-primary/25 bg-primary-dim text-primary"
-                    : "border-border hover:border-primary/25 hover:bg-primary-dim/50"
-                }`}
-              >
-                {action.label}
-              </Link>
-            ))}
-          </div>
+          <DashboardTasks
+            hasDeposit={profile.total_deposited > 0}
+            hasVip={profile.vip_level > 0}
+          />
         </Card>
       </div>
 

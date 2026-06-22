@@ -46,7 +46,7 @@ export async function register(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -62,8 +62,15 @@ export async function register(
     return { error: error.message };
   }
 
-  const profile = await getCurrentProfile();
-  redirect(getPostLoginPath(profile?.role ?? "user"));
+  if (data.session) {
+    const profile = await getCurrentProfile();
+    redirect(getPostLoginPath(profile?.role ?? "user"));
+  }
+
+  return {
+    success:
+      "Account created successfully. You can sign in now with your email and password.",
+  };
 }
 
 export async function forgotPassword(

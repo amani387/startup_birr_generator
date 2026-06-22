@@ -3,9 +3,9 @@ import { cn } from "@/lib/utils";
 
 const variants = {
   default:
-    "bg-primary text-[#14120f] shadow-[var(--shadow)] hover:brightness-105 active:scale-95 dark:text-[#14120f]",
+    "bg-primary text-white shadow-[var(--shadow)] hover:bg-primary-hover active:scale-[0.98]",
   outline:
-    "border border-primary/35 bg-transparent text-primary hover:bg-primary-dim active:scale-95",
+    "border border-primary/35 bg-transparent text-primary hover:bg-primary-dim active:scale-[0.98]",
   ghost:
     "bg-transparent text-foreground hover:bg-foreground/5 active:scale-95",
   danger: "bg-red-600 text-white hover:bg-red-500 active:scale-95",

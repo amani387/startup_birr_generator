@@ -1,7 +1,5 @@
 import { format } from "date-fns";
-import { Clock, Target, Wallet } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/page-header";
-import { StatCard } from "@/components/dashboard/stat-card";
 import { WithdrawalForm } from "@/components/dashboard/withdrawal-form";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -13,6 +11,12 @@ import {
   getWithdrawals,
 } from "@/lib/data/queries";
 import { formatBirr } from "@/lib/utils";
+
+function statusBadge(status: string) {
+  if (status === "approved") return { status: "approved" as const, label: "Paid" };
+  if (status === "rejected") return { status: "rejected" as const, label: "Failed" };
+  return { status: "pending" as const, label: "Processing" };
+}
 
 export default async function WithdrawalsPage() {
   const profile = await requireProfile();
@@ -36,107 +40,92 @@ export default async function WithdrawalsPage() {
 
   const unlocked = profile.balance >= minUnlock;
   const maxWithdrawal = Math.floor(profile.balance * (1 - retentionPercent / 100));
-  const pendingTotal = withdrawals
-    .filter((w) => w.status === "pending")
-    .reduce((sum, w) => sum + w.amount, 0);
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Withdrawal Request"
-        description="Withdraw your earnings to your preferred payment method."
+        title="Withdraw Funds"
+        description="Withdraw your earnings securely."
       />
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard
-          title="Available Balance"
-          value={formatBirr(profile.balance)}
-          icon={Wallet}
-          highlight
-        />
-        <StatCard title="Pending" value={formatBirr(pendingTotal)} icon={Clock} />
-        <StatCard
-          title="Total Withdrawn"
-          value={formatBirr(profile.total_withdrawn)}
-          icon={Target}
-        />
-      </div>
-
       {!unlocked && (
-        <Card className="border-red-500/20 bg-red-500/5">
-          <h3 className="font-bold text-red-500">Withdrawal not yet available</h3>
-          <p className="mt-2 text-sm text-muted">
-            You need a total balance of at least {formatBirr(minUnlock)} to unlock
-            withdrawals.
+        <Card className="border-amber-500/30 bg-amber-500/5">
+          <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+            Withdrawal unlocks at {formatBirr(minUnlock)} balance
           </p>
-          <p className="mt-2 text-sm">
-            Your total balance: {formatBirr(profile.balance)} — Still needed:{" "}
-            {formatBirr(Math.max(0, minUnlock - profile.balance))}
-          </p>
-          <p className="mt-1 text-xs text-muted">
-            {retentionPercent}% retention applies once unlocked
+          <p className="mt-1 text-sm text-muted">
+            Current balance: {formatBirr(profile.balance)} — need{" "}
+            {formatBirr(Math.max(0, minUnlock - profile.balance))} more
           </p>
         </Card>
       )}
 
-      <Card>
-        <h3 className="mb-4 font-bold">New Withdrawal</h3>
-        <WithdrawalForm
-          unlocked={unlocked}
-          maxWithdrawal={maxWithdrawal}
-          minAmount={minAmount}
-          retentionPercent={retentionPercent}
-          settings={settings}
-        />
-      </Card>
-
-      <Card>
-        <h3 className="mb-4 font-bold">Withdrawal History</h3>
-        {withdrawals.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted">
-            No withdrawal requests yet
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted">
+            Your Available Balance
           </p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border text-left text-muted">
-                  <th className="pb-3 font-medium">Date</th>
-                  <th className="pb-3 font-medium">Amount</th>
-                  <th className="pb-3 font-medium">Method</th>
-                  <th className="pb-3 font-medium">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {withdrawals.map((w) => (
-                  <tr key={w.id} className="border-b border-border/50">
-                    <td className="py-3">
-                      {format(new Date(w.created_at), "MMM d, yyyy")}
-                    </td>
-                    <td className="py-3 font-medium text-primary">
-                      {formatBirr(w.amount)}
-                    </td>
-                    <td className="py-3">{w.payment_method}</td>
-                    <td className="py-3">
-                      <Badge
-                        status={
-                          w.status === "approved"
-                            ? "approved"
-                            : w.status === "rejected"
-                              ? "rejected"
-                              : "pending"
-                        }
-                      >
-                        {w.status}
-                      </Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <p className="mt-1 text-3xl font-bold text-primary">
+            {formatBirr(profile.balance)}
+          </p>
+          <p className="mt-4 text-xs text-muted">
+            {retentionPercent}% retention applies · Min withdrawal {formatBirr(minAmount)}
+          </p>
+          <div className="mt-6 border-t border-border pt-6">
+            <h3 className="mb-4 font-bold">New Withdrawal</h3>
+            <WithdrawalForm
+              unlocked={unlocked}
+              maxWithdrawal={maxWithdrawal}
+              minAmount={minAmount}
+              retentionPercent={retentionPercent}
+              settings={settings}
+            />
           </div>
-        )}
-      </Card>
+        </Card>
+
+        <Card>
+          <h3 className="mb-4 font-bold">Withdrawal History</h3>
+          {withdrawals.length === 0 ? (
+            <p className="py-12 text-center text-sm text-muted">
+              No withdrawal requests yet
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border text-left text-xs text-muted">
+                    <th className="pb-3 font-medium">Date</th>
+                    <th className="pb-3 font-medium">Amount</th>
+                    <th className="pb-3 font-medium">Method</th>
+                    <th className="pb-3 font-medium">Destination</th>
+                    <th className="pb-3 font-medium">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {withdrawals.map((w) => {
+                    const badge = statusBadge(w.status);
+                    return (
+                      <tr key={w.id} className="border-b border-border/50">
+                        <td className="py-3 text-muted">
+                          {format(new Date(w.created_at), "dd-MM-yyyy")}
+                        </td>
+                        <td className="py-3 font-semibold text-primary">
+                          {formatBirr(w.amount)}
+                        </td>
+                        <td className="py-3">{w.payment_method}</td>
+                        <td className="py-3 text-muted">{w.account_number}</td>
+                        <td className="py-3">
+                          <Badge status={badge.status}>{badge.label}</Badge>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
+      </div>
     </div>
   );
 }
