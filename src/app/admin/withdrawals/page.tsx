@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { AdminPagination } from "@/components/admin/admin-pagination";
+import { AdminScrollList } from "@/components/admin/admin-scroll-list";
 import { AdminStatusFilter } from "@/components/admin/admin-status-filter";
 import { ReviewActions } from "@/components/admin/review-actions";
 import { Card } from "@/components/ui/card";
@@ -59,8 +60,9 @@ export default async function AdminWithdrawalsPage({
             No withdrawals found for this filter.
           </p>
         ) : (
-          <div className="space-y-4">
-            {result.items.map((withdrawal) => (
+          <AdminScrollList>
+            <div className="space-y-4 pr-1">
+              {result.items.map((withdrawal) => (
               <div
                 key={withdrawal.id}
                 className="flex flex-col gap-3 border-b border-border pb-4 last:border-0 sm:flex-row sm:items-center sm:justify-between"
@@ -97,8 +99,9 @@ export default async function AdminWithdrawalsPage({
                   status={withdrawal.status}
                 />
               </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </AdminScrollList>
         )}
 
         <AdminPagination

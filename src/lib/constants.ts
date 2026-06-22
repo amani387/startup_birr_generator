@@ -1,5 +1,8 @@
 export const APP_NAME = "Birr Tera";
 
+/** Only this account can promote or demote admin roles. Cannot be deleted. */
+export const SUPER_ADMIN_EMAIL = "amanaminte@gmail.com";
+
 /** Google sign-in shown as optional — requires Supabase Google provider setup. */
 export const GOOGLE_AUTH_ENABLED = true;
 

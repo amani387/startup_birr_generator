@@ -2,6 +2,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { ExternalLink } from "lucide-react";
 import { AdminPagination } from "@/components/admin/admin-pagination";
+import { AdminScrollList } from "@/components/admin/admin-scroll-list";
 import { AdminStatusFilter } from "@/components/admin/admin-status-filter";
 import { ReviewActions } from "@/components/admin/review-actions";
 import { Card } from "@/components/ui/card";
@@ -61,8 +62,9 @@ export default async function AdminDepositsPage({
             No deposits found for this filter.
           </p>
         ) : (
-          <div className="space-y-6">
-            {result.items.map((deposit) => (
+          <AdminScrollList>
+            <div className="space-y-6 pr-1">
+              {result.items.map((deposit) => (
               <div
                 key={deposit.id}
                 className="flex flex-col gap-4 border-b border-border pb-6 last:border-0 lg:flex-row lg:items-start lg:justify-between"
@@ -116,8 +118,9 @@ export default async function AdminDepositsPage({
                   status={deposit.status}
                 />
               </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </AdminScrollList>
         )}
 
         <AdminPagination

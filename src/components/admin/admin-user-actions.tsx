@@ -12,9 +12,17 @@ type AdminUserActionsProps = {
   userId: string;
   role: "user" | "admin";
   isSelf: boolean;
+  canManageRoles: boolean;
+  isProtectedAccount: boolean;
 };
 
-export function AdminUserActions({ userId, role, isSelf }: AdminUserActionsProps) {
+export function AdminUserActions({
+  userId,
+  role,
+  isSelf,
+  canManageRoles,
+  isProtectedAccount,
+}: AdminUserActionsProps) {
   const router = useRouter();
   const { showError, showSuccess } = useFeedback();
   const [pending, startTransition] = useTransition();
@@ -41,18 +49,20 @@ export function AdminUserActions({ userId, role, isSelf }: AdminUserActionsProps
 
   return (
     <div className="flex flex-wrap gap-2">
-      <Button
-        size="sm"
-        variant="outline"
-        disabled={pending || isSelf}
-        onClick={toggleRole}
-      >
-        {role === "admin" ? "Make user" : "Make admin"}
-      </Button>
+      {canManageRoles && (
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={pending || isSelf || isProtectedAccount}
+          onClick={toggleRole}
+        >
+          {role === "admin" ? "Make user" : "Make admin"}
+        </Button>
+      )}
       <AdminDeleteButton
         id={userId}
         type="user"
-        disabled={isSelf}
+        disabled={isSelf || isProtectedAccount}
         label="Delete"
       />
     </div>

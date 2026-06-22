@@ -1,10 +1,12 @@
 import { Suspense } from "react";
 import { format } from "date-fns";
 import { AdminPagination } from "@/components/admin/admin-pagination";
+import { AdminScrollList } from "@/components/admin/admin-scroll-list";
 import { AdminSearch } from "@/components/admin/admin-search";
 import { AdminUserActions } from "@/components/admin/admin-user-actions";
 import { Card } from "@/components/ui/card";
 import { parseAdminPage } from "@/lib/admin-pagination";
+import { isSuperAdminEmail, isSuperAdminProfile } from "@/lib/auth/super-admin";
 import { getAdminUsers, isAdminConfigured } from "@/lib/data/admin-queries";
 import { requireAdmin } from "@/lib/data/profile";
 import { formatBirr } from "@/lib/utils";
@@ -24,6 +26,7 @@ export default async function AdminUsersPage({
     requireAdmin(),
   ]);
   const configured = isAdminConfigured();
+  const canManageRoles = isSuperAdminProfile(currentAdmin);
 
   return (
     <div className="space-y-6">
@@ -49,9 +52,9 @@ export default async function AdminUsersPage({
         {result.items.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted">No users found.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
+          <AdminScrollList>
+            <table className="w-full min-w-[900px] text-sm">
+              <thead className="sticky top-0 z-10 bg-surface-bright">
                 <tr className="border-b border-border text-left text-muted">
                   <th className="pb-3 font-medium">Name</th>
                   <th className="pb-3 font-medium">Email</th>
@@ -69,7 +72,16 @@ export default async function AdminUsersPage({
                   <tr key={user.id} className="border-b border-border/50">
                     <td className="py-3 font-medium">{user.full_name}</td>
                     <td className="py-3 text-muted">{user.email}</td>
-                    <td className="py-3 capitalize">{user.role}</td>
+                    <td className="py-3 capitalize">
+                      <span className="inline-flex items-center gap-1.5">
+                        {user.role}
+                        {isSuperAdminEmail(user.email) && (
+                          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase text-primary">
+                            Super
+                          </span>
+                        )}
+                      </span>
+                    </td>
                     <td className="py-3">
                       {user.vip_level > 0 ? `VIP ${user.vip_level}` : "—"}
                     </td>
@@ -84,13 +96,15 @@ export default async function AdminUsersPage({
                         userId={user.id}
                         role={user.role}
                         isSelf={user.id === currentAdmin.id}
+                        canManageRoles={canManageRoles}
+                        isProtectedAccount={isSuperAdminEmail(user.email)}
                       />
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
+          </AdminScrollList>
         )}
 
         <AdminPagination

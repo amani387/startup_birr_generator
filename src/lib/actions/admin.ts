@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { isSuperAdminEmail, isSuperAdminProfile } from "@/lib/auth/super-admin";
 import { requireAdmin } from "@/lib/data/profile";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -221,11 +222,14 @@ export async function deleteUser(userId: string): Promise<ActionResult> {
   const admin = createAdminClient();
   const { data: target } = await admin
     .from("profiles")
-    .select("role")
+    .select("role, email")
     .eq("id", userId)
     .single();
 
   if (!target) return { error: "User not found." };
+  if (isSuperAdminEmail(target.email)) {
+    return { error: "The super admin account cannot be deleted." };
+  }
 
   const { error } = await admin.auth.admin.deleteUser(userId);
   if (error) return { error: error.message };
@@ -240,11 +244,28 @@ export async function updateUserRole(
   role: "user" | "admin"
 ): Promise<ActionResult> {
   const adminProfile = await assertAdmin();
+
+  if (!isSuperAdminProfile(adminProfile)) {
+    return { error: "Only the super admin can change user roles." };
+  }
+
+  const admin = createAdminClient();
+  const { data: target } = await admin
+    .from("profiles")
+    .select("email, role")
+    .eq("id", userId)
+    .single();
+
+  if (!target) return { error: "User not found." };
+
+  if (isSuperAdminEmail(target.email) && role !== "admin") {
+    return { error: "The super admin account cannot be demoted." };
+  }
+
   if (adminProfile.id === userId && role !== "admin") {
     return { error: "You cannot remove your own admin role." };
   }
 
-  const admin = createAdminClient();
   const { error } = await admin
     .from("profiles")
     .update({ role })

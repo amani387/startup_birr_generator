@@ -2,6 +2,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { Banknote, TrendingUp, Users, Wallet, Zap } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { AdminScrollList } from "@/components/admin/admin-scroll-list";
 import { getAdminRecentDeposits, getAdminStats } from "@/lib/data/admin-queries";
 import { formatBirr } from "@/lib/utils";
 
@@ -115,9 +116,9 @@ export default async function AdminPage() {
         {recentDeposits.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted">No deposits yet.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
+          <AdminScrollList>
+            <table className="w-full min-w-[640px] text-sm">
+              <thead className="sticky top-0 z-10 bg-surface-bright">
                 <tr className="border-b border-border text-left text-muted">
                   <th className="pb-3 font-medium">User</th>
                   <th className="pb-3 font-medium">Amount</th>
@@ -145,7 +146,7 @@ export default async function AdminPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </AdminScrollList>
         )}
       </Card>
     </div>
