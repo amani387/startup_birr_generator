@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { WITHDRAWAL_RULES } from "@/lib/constants";
 import { getCurrentProfile } from "@/lib/data/profile";
-import { getPlatformSetting } from "@/lib/data/queries";
+import { getDirectReferralCount, getPlatformSetting } from "@/lib/data/queries";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/types/database";
 
@@ -35,6 +35,18 @@ export async function submitWithdrawal(
   if (profile.balance < minUnlock) {
     return {
       error: `You need at least ${minUnlock} Birr balance to unlock withdrawals.`,
+    };
+  }
+
+  const requiredReferrals = await getPlatformSetting(
+    "withdrawal_required_referrals",
+    WITHDRAWAL_RULES.requiredReferrals
+  );
+  const referralCount = await getDirectReferralCount(profile.id);
+
+  if (referralCount < requiredReferrals) {
+    return {
+      error: `Invite ${requiredReferrals} new people to register using your referral link before withdrawing. You have ${referralCount}/${requiredReferrals}.`,
     };
   }
 

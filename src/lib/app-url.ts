@@ -1,5 +1,5 @@
 /** Canonical production URL — used when env is missing or still points at localhost. */
-export const PRODUCTION_APP_URL = "http://213.254.179.94";
+export const PRODUCTION_APP_URL = "https://gogenzeb.com";
 
 const LOCAL_DEV_URL = "http://localhost:3000";
 
@@ -31,6 +31,11 @@ export function getAuthCallbackUrl(next?: string): string {
   const base = `${getAppUrl()}/auth/callback`;
   if (!next) return base;
   return `${base}?next=${encodeURIComponent(next)}`;
+}
+
+/** Password reset emails and OTP recovery always use the public site URL (gogenzeb.com). */
+export function getPasswordResetRedirectUrl(): string {
+  return getAuthCallbackUrl("/reset-password");
 }
 
 /**

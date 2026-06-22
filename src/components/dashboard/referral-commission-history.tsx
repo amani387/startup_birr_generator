@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { CardScrollArea } from "@/components/dashboard/card-scroll-area";
 import { Card } from "@/components/ui/card";
 import { getReferralCommissions } from "@/lib/data/queries";
 import { requireProfile } from "@/lib/data/profile";
@@ -17,9 +18,9 @@ export async function ReferralCommissionHistory() {
           buys any VIP package.
         </p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
+        <CardScrollArea>
+          <table className="w-full min-w-[400px] text-sm">
+            <thead className="sticky top-0 z-10 bg-surface">
               <tr className="border-b border-border text-left text-muted">
                 <th className="pb-3 font-medium">Details</th>
                 <th className="pb-3 font-medium">Amount</th>
@@ -40,7 +41,7 @@ export async function ReferralCommissionHistory() {
               ))}
             </tbody>
           </table>
-        </div>
+        </CardScrollArea>
       )}
     </Card>
   );

@@ -20,8 +20,12 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const callbackError = searchParams.get("error");
   const errorDetails = searchParams.get("details");
+  const passwordReset = searchParams.get("reset");
 
   const formResult = useMemo(() => {
+    if (passwordReset === "success") {
+      return { success: "Password updated. Sign in with your new password." };
+    }
     if (callbackError === "auth_callback_failed") {
       let message = t("auth.googleError");
       if (errorDetails) {
@@ -34,7 +38,7 @@ export function LoginForm() {
       return { error: message };
     }
     return state;
-  }, [callbackError, errorDetails, state, t]);
+  }, [callbackError, errorDetails, passwordReset, state, t]);
 
   return (
     <div className="w-full">
@@ -79,6 +83,9 @@ export function LoginForm() {
           >
             {t("auth.forgotPassword")}
           </Link>
+          <p className="mt-2 text-xs text-muted">
+            Use the same email you registered with to reset your password.
+          </p>
         </div>
       </form>
 

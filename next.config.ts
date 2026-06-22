@@ -11,14 +11,17 @@ const nextConfig: NextConfig = {
     "localhost",
     "127.0.0.1",
     "213.254.179.94",
+    "gogenzeb.com",
+    "www.gogenzeb.com",
   ],
   turbopack: {
     root: projectRoot,
   },
   async rewrites() {
     return [
-      { source: "/logo.png", destination: "/icon.svg" },
-      { source: "/dashboard/logo.png", destination: "/icon.svg" },
+      { source: "/favicon.ico", destination: "/icon" },
+      { source: "/logo.png", destination: "/logo.svg" },
+      { source: "/dashboard/logo.png", destination: "/logo.svg" },
     ];
   },
 };

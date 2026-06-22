@@ -13,6 +13,8 @@ import {
   X,
 } from "lucide-react";
 import { logout } from "@/lib/actions/auth";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { SECONDARY_NAV } from "@/lib/i18n/index";
 import { useTranslation } from "@/components/providers/i18n-provider";
 import { cn } from "@/lib/utils";
@@ -85,6 +87,10 @@ export function MoreMenu({ open, onClose }: MoreMenuProps) {
                   </Link>
                 );
               })}
+            </div>
+            <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3 md:hidden">
+              <LanguageSwitcher compact className="min-w-0 flex-1" />
+              <ThemeToggle compact />
             </div>
             <form action={logout} className="mt-3 border-t border-border pt-3">
               <button

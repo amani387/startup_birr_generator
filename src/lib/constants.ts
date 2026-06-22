@@ -3,13 +3,106 @@ export const APP_NAME = "Birr Tera";
 /** Only this account can promote or demote admin roles. Cannot be deleted. */
 export const SUPER_ADMIN_EMAIL = "amanaminte@gmail.com";
 
-/** Google sign-in shown as optional — requires Supabase Google provider setup. */
-export const GOOGLE_AUTH_ENABLED = true;
+/** Google sign-in disabled until OAuth is configured in Supabase. */
+// export const GOOGLE_AUTH_ENABLED = true;
+export const GOOGLE_AUTH_ENABLED = false;
+
+export type SocialTaskPlatform =
+  | "facebook"
+  | "telegram"
+  | "youtube";
+
+export type SocialTask = {
+  id: string;
+  label: string;
+  reward: number;
+  platform: SocialTaskPlatform;
+  href: string;
+};
+
+/** Configure links via NEXT_PUBLIC_* env vars on the server. */
+export const SOCIAL_TASKS: SocialTask[] = [
+  {
+    id: "facebook_follow",
+    label: "Follow our Facebook page",
+    reward: 1.0,
+    platform: "facebook",
+    href: process.env.NEXT_PUBLIC_FACEBOOK_PAGE_URL ?? "https://facebook.com",
+  },
+  {
+    id: "facebook_share",
+    label: "Share a Facebook post publicly",
+    reward: 2.0,
+    platform: "facebook",
+    href: process.env.NEXT_PUBLIC_FACEBOOK_SHARE_URL ?? "https://facebook.com",
+  },
+  {
+    id: "facebook_comment",
+    label: "Comment on a Facebook post",
+    reward: 1.5,
+    platform: "facebook",
+    href: process.env.NEXT_PUBLIC_FACEBOOK_COMMENT_URL ?? "https://facebook.com",
+  },
+  {
+    id: "telegram_invite",
+    label: "Invite 10 friends to our Telegram group",
+    reward: 5.0,
+    platform: "telegram",
+    href: process.env.NEXT_PUBLIC_TELEGRAM_GROUP_URL ?? "https://t.me",
+  },
+  {
+    id: "telegram_join",
+    label: "Join our Telegram channel",
+    reward: 1.0,
+    platform: "telegram",
+    href: process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL_URL ?? "https://t.me",
+  },
+  {
+    id: "youtube_subscribe",
+    label: "Subscribe to our YouTube channel",
+    reward: 2.0,
+    platform: "youtube",
+    href: process.env.NEXT_PUBLIC_YOUTUBE_CHANNEL_URL ?? "https://youtube.com",
+  },
+  {
+    id: "youtube_like",
+    label: "Like a YouTube video",
+    reward: 1.0,
+    platform: "youtube",
+    href: process.env.NEXT_PUBLIC_YOUTUBE_LIKE_URL ?? "https://youtube.com",
+  },
+  {
+    id: "youtube_comment",
+    label: "Comment on a YouTube video",
+    reward: 1.5,
+    platform: "youtube",
+    href: process.env.NEXT_PUBLIC_YOUTUBE_COMMENT_URL ?? "https://youtube.com",
+  },
+  {
+    id: "youtube_watch",
+    label: "Watch a video for 2–3 minutes",
+    reward: 2.0,
+    platform: "youtube",
+    href: process.env.NEXT_PUBLIC_YOUTUBE_WATCH_URL ?? "https://youtube.com",
+  },
+];
+
+export function getSocialTaskById(taskId: string): SocialTask | undefined {
+  return SOCIAL_TASKS.find((task) => task.id === taskId);
+}
 
 export const WITHDRAWAL_RULES = {
   minBalanceToUnlock: 700,
   retentionPercent: 30,
   minWithdrawalAmount: 100,
+  /** Direct referrals who registered required before first withdrawal */
+  requiredReferrals: 4,
+} as const;
+
+/** Forex trade VIP boost — daily income = base × rate + vip level */
+export const FOREX_TRADE = {
+  interestRate: 1.15,
+  vipPackagesPath: "/dashboard/vip-packages",
 } as const;
 
 /** VIP package tiers — price & daily income (7-day cycle) */

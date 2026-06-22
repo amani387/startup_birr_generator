@@ -9,7 +9,8 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { DailyRewardClaim } from "@/components/dashboard/daily-reward-claim";
-import { DashboardTasks } from "@/components/dashboard/dashboard-tasks";
+import { CardScrollArea } from "@/components/dashboard/card-scroll-area";
+import { SocialTasksPanel } from "@/components/dashboard/social-tasks-panel";
 import { ForexMarketChart } from "@/components/dashboard/forex-market-chart";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { VipIncomeClaim } from "@/components/dashboard/vip-income-claim";
@@ -29,6 +30,8 @@ import {
   getPlatformSetting,
   getRecentActivity,
 } from "@/lib/data/queries";
+import { getTodayClaimedTaskIds } from "@/lib/data/tasks";
+import { calculateBoostedVipDailyIncome } from "@/lib/forex";
 import { getTranslations } from "@/lib/i18n/server";
 import { formatBirr } from "@/lib/utils";
 
@@ -49,13 +52,15 @@ function activityBadge(
 export default async function DashboardPage() {
   const profile = await requireProfile();
   const t = await getTranslations();
-  const [nextPlan, activePurchase, activity, rewardAmount, streakBonusDay] =
+  const [nextPlan, activePurchase, activity, rewardAmount, streakBonusDay, claimedTaskIds, forexInterestRate] =
     await Promise.all([
       getNextVipPlan(profile.vip_level),
       getActiveVipPurchase(profile.id),
       getRecentActivity(profile.id),
       getPlatformSetting("daily_reward_amount", 5),
       getPlatformSetting("daily_streak_bonus_day", 7),
+      getTodayClaimedTaskIds(profile.id),
+      getPlatformSetting("forex_interest_rate", 1.15),
     ]);
 
   const { progressPercent, amountToNext } = getVipProgress(
@@ -66,7 +71,15 @@ export default async function DashboardPage() {
   const vipLabel =
     profile.vip_level > 0 ? `VIP ${profile.vip_level}` : t("dashboard.noVip");
 
-  const dailyRoi = activePurchase?.daily_income ?? 0;
+  const baseDailyRoi = activePurchase?.daily_income ?? 0;
+  const dailyRoi =
+    profile.vip_level > 0 && baseDailyRoi > 0
+      ? calculateBoostedVipDailyIncome(
+          baseDailyRoi,
+          profile.vip_level,
+          forexInterestRate
+        )
+      : baseDailyRoi;
 
   return (
     <div className="section-stack">
@@ -74,7 +87,7 @@ export default async function DashboardPage() {
       <div className="bento-grid">
         <Card
           padding="lg"
-          className="md:col-span-8"
+          className="md:col-span-12"
         >
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <div className="space-y-3">
@@ -112,13 +125,17 @@ export default async function DashboardPage() {
             </div>
           </div>
         </Card>
+      </div>
 
-        <Card padding="md" className="md:col-span-4">
-          <DashboardTasks
-            hasDeposit={profile.total_deposited > 0}
-            hasVip={profile.vip_level > 0}
+      <div className="bento-grid">
+        <div className="md:col-span-12">
+          <SocialTasksPanel
+            claimedTaskIds={claimedTaskIds}
+            vipLevel={profile.vip_level}
+            forexInterestRate={forexInterestRate}
+            baseDailyIncome={baseDailyRoi}
           />
-        </Card>
+        </div>
       </div>
 
       {/* Stats row */}
@@ -205,13 +222,14 @@ export default async function DashboardPage() {
               </p>
             </div>
           ) : (
-            <div className="space-y-2">
-              {activity.map((item) => {
+            <CardScrollArea>
+              <div className="space-y-2 pr-1">
+                {activity.map((item) => {
                 const badge = activityBadge(item.status, t);
                 return (
                   <div
                     key={`${item.type}-${item.id}`}
-                    className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface-bright/40 px-4 py-3.5 transition-colors hover:border-primary/15"
+                    className="flex items-center justify-between gap-3 rounded-xl border-2 border-[var(--border-strong)] bg-surface-bright/40 px-4 py-3.5 transition-colors hover:border-primary/35"
                   >
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">{item.label}</p>
@@ -233,8 +251,9 @@ export default async function DashboardPage() {
                     </div>
                   </div>
                 );
-              })}
-            </div>
+                })}
+              </div>
+            </CardScrollArea>
           )}
         </Card>
 
@@ -260,6 +279,9 @@ export default async function DashboardPage() {
               <VipIncomeClaim
                 planName={activePurchase.vip_plans?.name ?? "VIP"}
                 dailyIncome={activePurchase.daily_income}
+                boostedDailyIncome={dailyRoi}
+                vipLevel={profile.vip_level}
+                forexInterestRate={forexInterestRate}
                 daysClaimed={activePurchase.days_claimed}
                 durationDays={activePurchase.vip_plans?.duration_days ?? 7}
                 expiresAt={activePurchase.expires_at}

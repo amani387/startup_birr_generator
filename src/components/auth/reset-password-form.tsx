@@ -26,10 +26,11 @@ export function ResetPasswordForm({ isAuthenticated }: ResetPasswordFormProps) {
         <BrandLogo size={56} className="mx-auto accent-glow rounded-2xl" />
         <h1 className="mt-6 font-display text-xl font-bold">Reset link expired</h1>
         <p className="mt-2 text-sm text-muted">
-          Request a new password reset link and open it from your email.
+          Request a new verification code on the forgot password page. Use the same
+          email you registered with.
         </p>
         <Link href="/forgot-password" className="mt-6 inline-block">
-          <Button size="lg">Request reset link</Button>
+          <Button size="lg">Request new code</Button>
         </Link>
       </Card>
     );

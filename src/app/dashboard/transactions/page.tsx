@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Gift, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/page-header";
+import { CardScrollArea } from "@/components/dashboard/card-scroll-area";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { Card } from "@/components/ui/card";
 import { cn, formatBirr } from "@/lib/utils";
@@ -65,10 +66,10 @@ export default function TransactionsPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-muted">
+        <CardScrollArea>
+          <table className="w-full min-w-[640px] text-sm">
+            <thead className="sticky top-0 z-10 bg-surface">
+              <tr className="border-b border-border text-left text-xs uppercase tracking-wider text-muted">
                 <th className="pb-3 font-medium">Type</th>
                 <th className="pb-3 font-medium">Date</th>
                 <th className="pb-3 font-medium">Amount</th>
@@ -84,7 +85,7 @@ export default function TransactionsPage() {
               </tr>
             </tbody>
           </table>
-        </div>
+        </CardScrollArea>
       </Card>
     </div>
   );

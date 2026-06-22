@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
+import { CardScrollArea } from "@/components/dashboard/card-scroll-area";
 import { Card } from "@/components/ui/card";
 import { REFERRAL_COMMISSION } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -57,10 +58,10 @@ export function AffiliateNetwork({
 
       <Card>
         <h3 className="mb-4 font-bold">Level {activeLevel} Referrals</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/10 text-left text-muted">
+        <CardScrollArea>
+          <table className="w-full min-w-[400px] text-sm">
+            <thead className="sticky top-0 z-10 bg-surface">
+              <tr className="border-b border-border text-left text-muted">
                 <th className="pb-3 font-medium">Username</th>
                 <th className="pb-3 font-medium">Registration Date</th>
                 <th className="pb-3 font-medium">VIP Status</th>
@@ -88,7 +89,7 @@ export function AffiliateNetwork({
               )}
             </tbody>
           </table>
-        </div>
+        </CardScrollArea>
       </Card>
 
       <Card className="overflow-hidden">

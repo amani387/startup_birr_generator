@@ -28,9 +28,13 @@ export const metadata: Metadata = {
   metadataBase: new URL(getAppUrl()),
   title: "Birr Tera — VIP Membership & Earnings",
   description: "Premium VIP membership and forex-style earnings platform in Birr",
+  manifest: "/manifest.webmanifest",
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
-    apple: "/logo.svg",
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml", sizes: "any" },
+      { url: "/logo.svg", type: "image/svg+xml", sizes: "128x128" },
+    ],
+    apple: [{ url: "/logo.svg", type: "image/svg+xml", sizes: "180x180" }],
     shortcut: "/icon.svg",
   },
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Birr Tera" },

@@ -7,7 +7,7 @@ import {
   isAdminAuthAvailable,
   isEmailNotConfirmedError,
 } from "@/lib/auth/email-confirm";
-import { getAuthCallbackUrl } from "@/lib/app-url";
+import { getPasswordResetRedirectUrl } from "@/lib/app-url";
 import { createClient } from "@/lib/supabase/server";
 import { getPostLoginPath, getCurrentProfile } from "@/lib/data/profile";
 import type { ActionResult } from "@/types/database";
@@ -108,11 +108,11 @@ export async function register(
   };
 }
 
-export async function forgotPassword(
+export async function sendPasswordResetOtp(
   _prev: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
-  const email = String(formData.get("email") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
 
   if (!email) {
     return { error: "Email is required." };
@@ -120,14 +120,72 @@ export async function forgotPassword(
 
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: getAuthCallbackUrl("/reset-password"),
+    redirectTo: getPasswordResetRedirectUrl(),
   });
 
   if (error) {
     return { error: error.message };
   }
 
-  return { success: "Password reset link sent. Check your email." };
+  return {
+    success:
+      "If an account exists for this email, we sent a 6-digit code and reset link. Use the same email you registered with.",
+  };
+}
+
+export async function resetPasswordWithOtp(
+  _prev: ActionResult,
+  formData: FormData
+): Promise<ActionResult> {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const otp = String(formData.get("otp") ?? "").trim();
+  const newPassword = String(formData.get("new_password") ?? "");
+  const confirmPassword = String(formData.get("confirm_password") ?? "");
+
+  if (!email || !otp) {
+    return { error: "Email and verification code are required." };
+  }
+
+  if (!newPassword || newPassword.length < 6) {
+    return { error: "New password must be at least 6 characters." };
+  }
+
+  if (newPassword !== confirmPassword) {
+    return { error: "Passwords do not match." };
+  }
+
+  const supabase = await createClient();
+  const { error: verifyError } = await supabase.auth.verifyOtp({
+    email,
+    token: otp,
+    type: "recovery",
+  });
+
+  if (verifyError) {
+    return {
+      error:
+        verifyError.message ||
+        "Invalid or expired code. Request a new one and use the email you registered with.",
+    };
+  }
+
+  const { error: updateError } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
+
+  if (updateError) {
+    return { error: updateError.message };
+  }
+
+  redirect("/login?reset=success");
+}
+
+/** @deprecated Use sendPasswordResetOtp — kept for compatibility */
+export async function forgotPassword(
+  _prev: ActionResult,
+  formData: FormData
+): Promise<ActionResult> {
+  return sendPasswordResetOtp(_prev, formData);
 }
 
 export async function resetPassword(

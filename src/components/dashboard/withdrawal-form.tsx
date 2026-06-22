@@ -13,6 +13,8 @@ type WithdrawalFormProps = {
   minAmount: number;
   retentionPercent: number;
   settings: WithdrawalSettings | null;
+  referralCount: number;
+  requiredReferrals: number;
 };
 
 export function WithdrawalForm({
@@ -21,6 +23,8 @@ export function WithdrawalForm({
   minAmount,
   retentionPercent,
   settings,
+  referralCount,
+  requiredReferrals,
 }: WithdrawalFormProps) {
   const [state, action, pending] = useActionState(submitWithdrawal, {});
 
@@ -65,7 +69,11 @@ export function WithdrawalForm({
         disabled={!unlocked}
       />
       <Button type="submit" disabled={!unlocked || pending}>
-        {pending ? "Submitting..." : "Submit Withdrawal Request"}
+        {pending
+          ? "Submitting..."
+          : !unlocked && referralCount < requiredReferrals
+            ? `Need ${requiredReferrals - referralCount} more referrals`
+            : "Submit Withdrawal Request"}
       </Button>
     </form>
   );

@@ -1,11 +1,16 @@
+import Link from "next/link";
 import { format } from "date-fns";
+import { Users } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/page-header";
+import { CardScrollArea } from "@/components/dashboard/card-scroll-area";
 import { WithdrawalForm } from "@/components/dashboard/withdrawal-form";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { WITHDRAWAL_RULES } from "@/lib/constants";
 import { requireProfile } from "@/lib/data/profile";
 import {
+  getDirectReferralCount,
   getPlatformSetting,
   getWithdrawalSettings,
   getWithdrawals,
@@ -20,9 +25,10 @@ function statusBadge(status: string) {
 
 export default async function WithdrawalsPage() {
   const profile = await requireProfile();
-  const [withdrawals, settings] = await Promise.all([
+  const [withdrawals, settings, referralCount] = await Promise.all([
     getWithdrawals(profile.id),
     getWithdrawalSettings(profile.id),
+    getDirectReferralCount(profile.id),
   ]);
 
   const retentionPercent = await getPlatformSetting(
@@ -37,8 +43,14 @@ export default async function WithdrawalsPage() {
     "withdrawal_min_amount",
     WITHDRAWAL_RULES.minWithdrawalAmount
   );
+  const requiredReferrals = await getPlatformSetting(
+    "withdrawal_required_referrals",
+    WITHDRAWAL_RULES.requiredReferrals
+  );
 
-  const unlocked = profile.balance >= minUnlock;
+  const balanceUnlocked = profile.balance >= minUnlock;
+  const referralsEligible = referralCount >= requiredReferrals;
+  const unlocked = balanceUnlocked && referralsEligible;
   const maxWithdrawal = Math.floor(profile.balance * (1 - retentionPercent / 100));
 
   return (
@@ -48,7 +60,41 @@ export default async function WithdrawalsPage() {
         description="Withdraw your earnings securely."
       />
 
-      {!unlocked && (
+      {!referralsEligible && (
+        <Card className="border-amber-500/40 bg-gradient-to-r from-amber-500/5 to-primary/5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <div className="rounded-xl bg-amber-500/15 p-2.5">
+                <Users className="h-5 w-5 text-amber-700" />
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">
+                  Invite {requiredReferrals} new members to unlock withdrawals
+                </p>
+                <p className="mt-1 text-sm text-muted">
+                  Each person must register using your referral link. Progress:{" "}
+                  <span className="font-bold text-primary">
+                    {referralCount}/{requiredReferrals}
+                  </span>
+                </p>
+              </div>
+            </div>
+            <Link href="/dashboard/referral">
+              <Button size="sm">Get referral link</Button>
+            </Link>
+          </div>
+          <div className="mt-4 h-2 overflow-hidden rounded-full bg-border">
+            <div
+              className="h-full rounded-full bg-amber-500 transition-all"
+              style={{
+                width: `${Math.min(100, (referralCount / requiredReferrals) * 100)}%`,
+              }}
+            />
+          </div>
+        </Card>
+      )}
+
+      {!balanceUnlocked && (
         <Card className="border-amber-500/30 bg-amber-500/5">
           <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
             Withdrawal unlocks at {formatBirr(minUnlock)} balance
@@ -79,6 +125,8 @@ export default async function WithdrawalsPage() {
               minAmount={minAmount}
               retentionPercent={retentionPercent}
               settings={settings}
+              referralCount={referralCount}
+              requiredReferrals={requiredReferrals}
             />
           </div>
         </Card>
@@ -90,9 +138,9 @@ export default async function WithdrawalsPage() {
               No withdrawal requests yet
             </p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
+            <CardScrollArea>
+              <table className="w-full min-w-[560px] text-sm">
+                <thead className="sticky top-0 z-10 bg-surface">
                   <tr className="border-b border-border text-left text-xs text-muted">
                     <th className="pb-3 font-medium">Date</th>
                     <th className="pb-3 font-medium">Amount</th>
@@ -122,7 +170,7 @@ export default async function WithdrawalsPage() {
                   })}
                 </tbody>
               </table>
-            </div>
+            </CardScrollArea>
           )}
         </Card>
       </div>

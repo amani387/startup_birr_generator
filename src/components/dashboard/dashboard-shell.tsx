@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Bell, Menu } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { FloatingBottomNav } from "@/components/dashboard/floating-bottom-nav";
 import { MoreMenu } from "@/components/dashboard/more-menu";
 import { TopNav } from "@/components/dashboard/top-nav";
@@ -30,6 +32,7 @@ export function DashboardShell({ userName = "Member", children }: DashboardShell
           </span>
         </div>
         <div className="flex items-center gap-1">
+          <ThemeToggle compact className="shrink-0" />
           <button
             type="button"
             className="touch-target rounded-full p-2 text-muted"

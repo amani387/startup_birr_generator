@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Crown } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/page-header";
+import { CardScrollArea } from "@/components/dashboard/card-scroll-area";
 import { VipIncomeClaim } from "@/components/dashboard/vip-income-claim";
 import { VipPackagesList } from "@/components/dashboard/vip-packages-list";
 import { Button } from "@/components/ui/button";
@@ -58,11 +59,13 @@ export default async function VipPackagesPage() {
       </Card>
 
       <Card padding="sm">
-        <VipPackagesList
-          plans={plans}
-          balance={profile.balance}
-          currentVipLevel={profile.vip_level}
-        />
+        <CardScrollArea>
+          <VipPackagesList
+            plans={plans}
+            balance={profile.balance}
+            currentVipLevel={profile.vip_level}
+          />
+        </CardScrollArea>
       </Card>
     </div>
   );

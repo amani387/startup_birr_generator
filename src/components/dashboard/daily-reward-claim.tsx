@@ -1,8 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { Gift } from "lucide-react";
 import { claimDailyReward } from "@/lib/actions/profile";
+import { celebrateReward } from "@/lib/confetti";
 import { useFeedback } from "@/components/providers/feedback-provider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -22,6 +24,7 @@ export function DailyRewardClaim({
   maxStreak,
   canClaim,
 }: DailyRewardClaimProps) {
+  const router = useRouter();
   const { showError, showSuccess } = useFeedback();
   const [pending, startTransition] = useTransition();
 
@@ -29,7 +32,14 @@ export function DailyRewardClaim({
     startTransition(async () => {
       try {
         const result = await claimDailyReward();
-        applyActionResult(result, { onError: showError, onSuccess: showSuccess });
+        const ok = applyActionResult(result, {
+          onError: showError,
+          onSuccess: showSuccess,
+        });
+        if (ok && result.success) {
+          celebrateReward();
+          router.refresh();
+        }
       } catch (err) {
         showError(getErrorMessage(err));
       }

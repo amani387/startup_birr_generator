@@ -1,6 +1,7 @@
 "use client";
 
 import { VIP_REFERRAL_REWARDS } from "@/lib/constants";
+import { CardScrollArea } from "@/components/dashboard/card-scroll-area";
 import { Card } from "@/components/ui/card";
 import { formatBirr } from "@/lib/utils";
 
@@ -11,9 +12,9 @@ export function ReferralRewardsTable() {
       <p className="mb-4 text-sm text-muted">
         Earn 15% when your referral purchases any VIP package.
       </p>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
+      <CardScrollArea>
+        <table className="w-full min-w-[360px] text-sm">
+          <thead className="sticky top-0 z-10 bg-surface">
             <tr className="border-b border-border text-left text-muted">
               <th className="pb-3 font-medium">Package</th>
               <th className="pb-3 font-medium">Price</th>
@@ -33,7 +34,7 @@ export function ReferralRewardsTable() {
             ))}
           </tbody>
         </table>
-      </div>
+      </CardScrollArea>
     </Card>
   );
 }

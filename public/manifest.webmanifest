@@ -1,0 +1,23 @@
+{
+  "name": "Birr Tera",
+  "short_name": "Birr Tera",
+  "description": "VIP membership and earnings platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "32x32",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

@@ -13,8 +13,8 @@
   --primary-hover: #1d4ed8;
   --primary-dim: rgba(37, 99, 235, 0.08);
   --primary-glow: rgba(37, 99, 235, 0.12);
-  --border: rgba(15, 23, 42, 0.08);
-  --border-strong: rgba(37, 99, 235, 0.35);
+  --border: rgba(15, 23, 42, 0.16);
+  --border-strong: rgba(37, 99, 235, 0.42);
   --muted: #64748b;
   --overlay: rgba(15, 23, 42, 0.45);
   --shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
@@ -34,8 +34,8 @@
   --primary-hover: #60a5fa;
   --primary-dim: rgba(59, 130, 246, 0.12);
   --primary-glow: rgba(59, 130, 246, 0.18);
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(59, 130, 246, 0.35);
+  --border: rgba(255, 255, 255, 0.14);
+  --border-strong: rgba(59, 130, 246, 0.45);
   --muted: #94a3b8;
   --overlay: rgba(0, 0, 0, 0.65);
   --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
@@ -113,7 +113,7 @@ body::after {
   }
 
   .glass-card {
-    @apply rounded-2xl border border-border bg-surface shadow-[var(--shadow)];
+    @apply rounded-2xl border-2 border-[var(--border-strong)] bg-surface shadow-[var(--shadow)];
   }
 
   .interactive-hover {
@@ -152,7 +152,7 @@ body::after {
   }
 
   .vip-list-row {
-    @apply flex flex-col gap-3 rounded-xl border border-border bg-surface px-4 py-4 transition-colors hover:border-primary/25 sm:flex-row sm:items-center sm:justify-between;
+    @apply flex flex-col gap-3 rounded-xl border-2 border-[var(--border-strong)] bg-surface px-4 py-4 transition-colors hover:border-primary/40 sm:flex-row sm:items-center sm:justify-between;
   }
 
   .progress-blue {

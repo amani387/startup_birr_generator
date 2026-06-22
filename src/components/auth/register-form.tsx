@@ -35,6 +35,12 @@ export function RegisterForm({ defaultReferralCode }: RegisterFormProps) {
       </h1>
       <p className="mt-2 text-sm text-muted">{t("auth.registerSubtitle")}</p>
 
+      <div className="mt-4 flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/5 px-3 py-2.5 text-xs leading-relaxed text-muted">
+        <span className="font-semibold text-foreground">Tip:</span> register with an
+        email you can access — you must use this same email later if you forget your
+        password.
+      </div>
+
       <form action={action} className="mt-8 space-y-5">
         <FormMessage result={state} />
         <Input

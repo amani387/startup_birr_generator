@@ -1,8 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { Crown } from "lucide-react";
+import { Crown, TrendingUp } from "lucide-react";
 import { claimVipDailyIncome } from "@/lib/actions/vip";
+import { celebrateReward } from "@/lib/confetti";
 import { useFeedback } from "@/components/providers/feedback-provider";
 import { Button } from "@/components/ui/button";
 import { applyActionResult, getErrorMessage } from "@/lib/feedback";
@@ -11,6 +13,9 @@ import { formatBirr } from "@/lib/utils";
 type VipIncomeClaimProps = {
   planName: string;
   dailyIncome: number;
+  boostedDailyIncome?: number;
+  vipLevel?: number;
+  forexInterestRate?: number;
   daysClaimed: number;
   durationDays: number;
   expiresAt: string;
@@ -20,19 +25,33 @@ type VipIncomeClaimProps = {
 export function VipIncomeClaim({
   planName,
   dailyIncome,
+  boostedDailyIncome,
+  vipLevel = 0,
+  forexInterestRate = 1.15,
   daysClaimed,
   durationDays,
   expiresAt,
   canClaim,
 }: VipIncomeClaimProps) {
+  const router = useRouter();
   const { showError, showSuccess } = useFeedback();
   const [pending, startTransition] = useTransition();
+
+  const claimAmount = boostedDailyIncome ?? dailyIncome;
+  const hasBoost = vipLevel > 0 && claimAmount > dailyIncome;
 
   function handleClaim() {
     startTransition(async () => {
       try {
         const result = await claimVipDailyIncome();
-        applyActionResult(result, { onError: showError, onSuccess: showSuccess });
+        const ok = applyActionResult(result, {
+          onError: showError,
+          onSuccess: showSuccess,
+        });
+        if (ok && result.success) {
+          celebrateReward();
+          router.refresh();
+        }
       } catch (err) {
         showError(getErrorMessage(err));
       }
@@ -50,9 +69,25 @@ export function VipIncomeClaim({
         </span>
         <h3 className="mt-3 font-display text-lg font-bold">{planName}</h3>
         <p className="mt-2 text-sm text-muted">
-          {formatBirr(dailyIncome)}/day · Day {daysClaimed}/{durationDays}
+          {hasBoost ? (
+            <>
+              <span className="line-through opacity-60">{formatBirr(dailyIncome)}</span>{" "}
+              <span className="font-semibold text-amber-700">
+                {formatBirr(claimAmount)}/day
+              </span>
+            </>
+          ) : (
+            <>{formatBirr(dailyIncome)}/day</>
+          )}{" "}
+          · Day {daysClaimed}/{durationDays}
         </p>
-        <p className="text-xs text-muted">
+        {hasBoost && (
+          <p className="mt-1 flex items-center gap-1 text-xs font-medium text-amber-700">
+            <TrendingUp className="h-3.5 w-3.5" />
+            Forex boost: base × {forexInterestRate} + VIP {vipLevel}
+          </p>
+        )}
+        <p className="mt-1 text-xs text-muted">
           Expires{" "}
           {new Date(expiresAt).toLocaleDateString(undefined, {
             month: "short",
@@ -86,7 +121,7 @@ export function VipIncomeClaim({
           : daysClaimed >= durationDays
             ? "Package complete"
             : canClaim
-              ? `Claim ${formatBirr(dailyIncome)}`
+              ? `Claim ${formatBirr(claimAmount)}`
               : "Claimed today"}
       </Button>
     </div>

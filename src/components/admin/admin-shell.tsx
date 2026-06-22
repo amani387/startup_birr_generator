@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { logout } from "@/lib/actions/auth";
 import { APP_NAME } from "@/lib/constants";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const ADMIN_NAV = [
@@ -42,8 +43,12 @@ export function AdminShell({ userName, children }: AdminShellProps) {
               Admin
             </span>
           </div>
-          <div className="flex items-center gap-3">
-            <Link href="/dashboard" className="text-xs text-muted hover:text-primary">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <ThemeToggle compact />
+            <Link
+              href="/dashboard"
+              className="hidden text-xs text-muted hover:text-primary sm:inline"
+            >
               User dashboard
             </Link>
             <span className="hidden text-sm text-muted sm:inline">{userName}</span>

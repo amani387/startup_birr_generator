@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { DepositFlow } from "@/components/dashboard/deposit-flow";
+import { CardScrollArea } from "@/components/dashboard/card-scroll-area";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -40,10 +41,10 @@ export default async function DepositsPage() {
         {deposits.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted">No deposits yet</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-white/10 text-left text-muted">
+          <CardScrollArea>
+            <table className="w-full min-w-[480px] text-sm">
+              <thead className="sticky top-0 z-10 bg-surface">
+                <tr className="border-b border-border text-left text-muted">
                   <th className="pb-3 font-medium">Date</th>
                   <th className="pb-3 font-medium">Amount</th>
                   <th className="pb-3 font-medium">Method</th>
@@ -77,7 +78,7 @@ export default async function DepositsPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </CardScrollArea>
         )}
       </Card>
     </div>
