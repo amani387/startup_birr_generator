@@ -1,10 +1,28 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import {
+  confirmUserByEmail,
+  confirmUserById,
+  isAdminAuthAvailable,
+  isEmailNotConfirmedError,
+} from "@/lib/auth/email-confirm";
 import { getAuthCallbackUrl } from "@/lib/app-url";
 import { createClient } from "@/lib/supabase/server";
 import { getPostLoginPath, getCurrentProfile } from "@/lib/data/profile";
 import type { ActionResult } from "@/types/database";
+
+async function signInAndRedirect(email: string, password: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    return { error: error.message } satisfies ActionResult;
+  }
+
+  const profile = await getCurrentProfile();
+  redirect(getPostLoginPath(profile?.role ?? "user"));
+}
 
 export async function login(
   _prev: ActionResult,
@@ -21,6 +39,13 @@ export async function login(
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
+    if (isEmailNotConfirmedError(error.message) && isAdminAuthAvailable()) {
+      const confirmed = await confirmUserByEmail(email);
+      if (confirmed) {
+        return signInAndRedirect(email, password);
+      }
+    }
+
     return { error: error.message };
   }
 
@@ -54,7 +79,6 @@ export async function register(
         full_name: fullName,
         ...(referralCode ? { referral_code: referralCode } : {}),
       },
-      emailRedirectTo: getAuthCallbackUrl(),
     },
   });
 
@@ -67,9 +91,20 @@ export async function register(
     redirect(getPostLoginPath(profile?.role ?? "user"));
   }
 
+  if (data.user?.id && isAdminAuthAvailable()) {
+    await confirmUserById(data.user.id);
+    return signInAndRedirect(email, password);
+  }
+
+  if (!isAdminAuthAvailable()) {
+    return {
+      error:
+        "Account created but sign-in is blocked until email is confirmed. Add SUPABASE_SERVICE_ROLE_KEY on the server, or disable “Confirm email” in Supabase → Authentication → Providers → Email.",
+    };
+  }
+
   return {
-    success:
-      "Account created successfully. You can sign in now with your email and password.",
+    error: "Account created but sign-in failed. Please try logging in.",
   };
 }
 

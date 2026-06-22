@@ -7,10 +7,11 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import type { ActionResult } from "@/types/database";
 
 async function assertAdmin() {
-  await requireAdmin();
+  const profile = await requireAdmin();
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error("Admin service role key is not configured.");
   }
+  return profile;
 }
 
 export async function reviewDeposit(
@@ -144,4 +145,113 @@ export async function reviewWithdrawal(
   revalidatePath("/admin/withdrawals");
   revalidatePath("/dashboard/withdrawals");
   return { success: `Withdrawal ${action}.` };
+}
+
+export async function deleteDeposit(depositId: string): Promise<ActionResult> {
+  await assertAdmin();
+  const admin = createAdminClient();
+
+  const { data: deposit, error: fetchError } = await admin
+    .from("deposits")
+    .select("*")
+    .eq("id", depositId)
+    .single();
+
+  if (fetchError || !deposit) return { error: "Deposit not found." };
+  if (deposit.status === "approved") {
+    return { error: "Cannot delete an approved deposit. Reject is not available after approval." };
+  }
+
+  if (deposit.screenshot_url) {
+    await admin.storage.from("deposits").remove([deposit.screenshot_url]);
+  }
+
+  const { error } = await admin.from("deposits").delete().eq("id", depositId);
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/deposits");
+  return { success: "Deposit deleted." };
+}
+
+export async function deleteWithdrawal(withdrawalId: string): Promise<ActionResult> {
+  await assertAdmin();
+  const admin = createAdminClient();
+
+  const { data: withdrawal, error: fetchError } = await admin
+    .from("withdrawals")
+    .select("*")
+    .eq("id", withdrawalId)
+    .single();
+
+  if (fetchError || !withdrawal) return { error: "Withdrawal not found." };
+
+  if (withdrawal.status === "pending") {
+    const { data: userProfile } = await admin
+      .from("profiles")
+      .select("balance")
+      .eq("id", withdrawal.user_id)
+      .single();
+
+    if (userProfile) {
+      await admin
+        .from("profiles")
+        .update({
+          balance: Number(userProfile.balance) + Number(withdrawal.amount),
+        })
+        .eq("id", withdrawal.user_id);
+    }
+  }
+
+  const { error } = await admin.from("withdrawals").delete().eq("id", withdrawalId);
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/withdrawals");
+  revalidatePath("/dashboard/withdrawals");
+  return { success: "Withdrawal deleted." };
+}
+
+export async function deleteUser(userId: string): Promise<ActionResult> {
+  const adminProfile = await assertAdmin();
+  if (adminProfile.id === userId) {
+    return { error: "You cannot delete your own account." };
+  }
+
+  const admin = createAdminClient();
+  const { data: target } = await admin
+    .from("profiles")
+    .select("role")
+    .eq("id", userId)
+    .single();
+
+  if (!target) return { error: "User not found." };
+
+  const { error } = await admin.auth.admin.deleteUser(userId);
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/users");
+  return { success: "User deleted." };
+}
+
+export async function updateUserRole(
+  userId: string,
+  role: "user" | "admin"
+): Promise<ActionResult> {
+  const adminProfile = await assertAdmin();
+  if (adminProfile.id === userId && role !== "admin") {
+    return { error: "You cannot remove your own admin role." };
+  }
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("profiles")
+    .update({ role })
+    .eq("id", userId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin/users");
+  return { success: `User role updated to ${role}.` };
 }

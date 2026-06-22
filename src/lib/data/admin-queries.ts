@@ -1,5 +1,11 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import {
+  ADMIN_PAGE_SIZE,
+  adminPageRange,
+  buildPaginatedResult,
+  type PaginatedResult,
+} from "@/lib/admin-pagination";
 
 export function isAdminConfigured(): boolean {
   return Boolean(
@@ -87,36 +93,83 @@ export type AdminDepositRow = {
   screenshotSignedUrl: string | null;
 };
 
-export async function getAdminPendingDeposits(): Promise<AdminDepositRow[]> {
-  if (!isAdminConfigured()) return [];
+export type AdminWithdrawalRow = {
+  id: string;
+  amount: number;
+  payment_method: string;
+  account_holder: string;
+  account_number: string;
+  status: string;
+  created_at: string;
+  user_id: string;
+  profiles: { full_name: string; email: string } | null;
+};
 
-  const admin = createAdminClient();
-  const { data, error } = await admin
-    .from("deposits")
-    .select(
-      "id, amount, payment_method, status, screenshot_url, transaction_ref, created_at, user_id"
-    )
-    .eq("status", "pending")
-    .order("created_at", { ascending: false })
-    .limit(50);
+export type AdminUserRow = {
+  id: string;
+  full_name: string;
+  email: string;
+  role: "user" | "admin";
+  balance: number;
+  vip_level: number;
+  total_deposited: number;
+  total_withdrawn: number;
+  total_earned: number;
+  created_at: string;
+};
 
-  if (error) {
-    console.error("getAdminPendingDeposits:", error.message);
-    return [];
-  }
-  if (!data?.length) return [];
+async function attachProfiles<T extends { user_id: string }>(
+  admin: ReturnType<typeof createAdminClient>,
+  rows: T[]
+): Promise<Map<string, { full_name: string; email: string }>> {
+  const userIds = [...new Set(rows.map((r) => r.user_id))];
+  if (!userIds.length) return new Map();
 
-  const userIds = [...new Set(data.map((d) => d.user_id))];
   const { data: profileRows } = await admin
     .from("profiles")
     .select("id, full_name, email")
     .in("id", userIds);
 
-  const profileMap = new Map(
+  return new Map(
     (profileRows ?? []).map((p) => [p.id, { full_name: p.full_name, email: p.email }])
   );
+}
 
+export async function getAdminDeposits(options: {
+  page: number;
+  status?: "all" | "pending" | "approved" | "rejected";
+}): Promise<PaginatedResult<AdminDepositRow>> {
+  const empty = buildPaginatedResult<AdminDepositRow>([], 0, options.page);
+  if (!isAdminConfigured()) return empty;
+
+  const admin = createAdminClient();
+  const { from, to } = adminPageRange(options.page);
+
+  let query = admin
+    .from("deposits")
+    .select(
+      "id, amount, payment_method, status, screenshot_url, transaction_ref, created_at, user_id",
+      { count: "exact" }
+    )
+    .order("created_at", { ascending: false });
+
+  if (options.status && options.status !== "all") {
+    query = query.eq("status", options.status);
+  }
+
+  const { data, count, error } = await query.range(from, to);
+
+  if (error) {
+    console.error("getAdminDeposits:", error.message);
+    return empty;
+  }
+  if (!data?.length) {
+    return buildPaginatedResult([], count ?? 0, options.page);
+  }
+
+  const profileMap = await attachProfiles(admin, data);
   const rows: AdminDepositRow[] = [];
+
   for (const deposit of data) {
     let screenshotSignedUrl: string | null = null;
     if (deposit.screenshot_url) {
@@ -140,64 +193,103 @@ export async function getAdminPendingDeposits(): Promise<AdminDepositRow[]> {
     });
   }
 
-  return rows;
+  return buildPaginatedResult(rows, count ?? 0, options.page);
 }
 
-export async function getAdminPendingWithdrawals() {
-  if (!isAdminConfigured()) return [];
+export async function getAdminWithdrawals(options: {
+  page: number;
+  status?: "all" | "pending" | "approved" | "rejected";
+}): Promise<PaginatedResult<AdminWithdrawalRow>> {
+  const empty = buildPaginatedResult<AdminWithdrawalRow>([], 0, options.page);
+  if (!isAdminConfigured()) return empty;
 
   const admin = createAdminClient();
-  const { data, error } = await admin
+  const { from, to } = adminPageRange(options.page);
+
+  let query = admin
     .from("withdrawals")
     .select(
-      "id, amount, payment_method, account_holder, account_number, status, created_at, user_id"
+      "id, amount, payment_method, account_holder, account_number, status, created_at, user_id",
+      { count: "exact" }
     )
-    .eq("status", "pending")
-    .order("created_at", { ascending: false })
-    .limit(50);
+    .order("created_at", { ascending: false });
+
+  if (options.status && options.status !== "all") {
+    query = query.eq("status", options.status);
+  }
+
+  const { data, count, error } = await query.range(from, to);
 
   if (error) {
-    console.error("getAdminPendingWithdrawals:", error.message);
-    return [];
+    console.error("getAdminWithdrawals:", error.message);
+    return empty;
   }
-  if (!data?.length) return [];
+  if (!data?.length) {
+    return buildPaginatedResult([], count ?? 0, options.page);
+  }
 
-  const userIds = [...new Set(data.map((w) => w.user_id))];
-  const { data: profileRows } = await admin
-    .from("profiles")
-    .select("id, full_name, email")
-    .in("id", userIds);
+  const profileMap = await attachProfiles(admin, data);
 
-  const profileMap = new Map(
-    (profileRows ?? []).map((p) => [p.id, { full_name: p.full_name, email: p.email }])
-  );
-
-  return data.map((row) => ({
-    ...row,
+  const items = data.map((row) => ({
+    id: row.id,
     amount: Number(row.amount),
+    payment_method: row.payment_method,
+    account_holder: row.account_holder,
+    account_number: row.account_number,
+    status: row.status,
+    created_at: row.created_at,
+    user_id: row.user_id,
     profiles: profileMap.get(row.user_id) ?? null,
   }));
+
+  return buildPaginatedResult(items, count ?? 0, options.page);
 }
 
-export async function getAdminUsers() {
-  if (!isAdminConfigured()) return [];
+export async function getAdminUsers(options: {
+  page: number;
+  search?: string;
+}): Promise<PaginatedResult<AdminUserRow>> {
+  const empty = buildPaginatedResult<AdminUserRow>([], 0, options.page);
+  if (!isAdminConfigured()) return empty;
 
   const admin = createAdminClient();
-  const { data } = await admin
+  const { from, to } = adminPageRange(options.page);
+
+  let query = admin
     .from("profiles")
     .select(
-      "id, full_name, email, role, balance, vip_level, total_deposited, total_withdrawn, total_earned, created_at"
+      "id, full_name, email, role, balance, vip_level, total_deposited, total_withdrawn, total_earned, created_at",
+      { count: "exact" }
     )
-    .order("created_at", { ascending: false })
-    .limit(200);
+    .order("created_at", { ascending: false });
 
-  return (data ?? []).map((row) => ({
-    ...row,
+  const search = options.search?.trim();
+  if (search) {
+    const safe = search.replace(/[%_]/g, "");
+    query = query.or(`full_name.ilike.%${safe}%,email.ilike.%${safe}%`);
+  }
+
+  const { data, count, error } = await query.range(from, to);
+
+  if (error) {
+    console.error("getAdminUsers:", error.message);
+    return empty;
+  }
+
+  const items = (data ?? []).map((row) => ({
+    id: row.id,
+    full_name: row.full_name,
+    email: row.email,
+    role: row.role as "user" | "admin",
     balance: Number(row.balance),
+    vip_level: Number(row.vip_level),
     total_deposited: Number(row.total_deposited),
     total_withdrawn: Number(row.total_withdrawn),
     total_earned: Number(row.total_earned),
+    created_at: row.created_at,
   }));
+
+  return buildPaginatedResult(items, count ?? 0, options.page);
 }
 
 export async function getAdminRecentDeposits(limit = 10) {
@@ -231,4 +323,16 @@ export async function getAdminRecentDeposits(limit = 10) {
     amount: Number(row.amount),
     profiles: profileMap.get(row.user_id) ?? null,
   }));
+}
+
+/** @deprecated Use getAdminDeposits */
+export async function getAdminPendingDeposits() {
+  const result = await getAdminDeposits({ page: 1, status: "pending" });
+  return result.items;
+}
+
+/** @deprecated Use getAdminWithdrawals */
+export async function getAdminPendingWithdrawals() {
+  const result = await getAdminWithdrawals({ page: 1, status: "pending" });
+  return result.items;
 }

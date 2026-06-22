@@ -1,49 +1,36 @@
-import { BarChart3, Shield, Smartphone, TrendingUp } from "lucide-react";
+import Image from "next/image";
+import { BarChart3 } from "lucide-react";
 import { APP_NAME } from "@/lib/constants";
 
 export function AuthHeroPanel() {
   return (
-    <div className="auth-hero-panel relative hidden min-h-dvh flex-1 flex-col justify-between overflow-hidden p-10 text-white lg:flex xl:p-14">
-      <div className="relative z-10">
-        <div className="flex items-center gap-2">
-          <BarChart3 className="h-8 w-8" strokeWidth={2.5} />
-          <span className="font-display text-2xl font-bold">{APP_NAME}</span>
-        </div>
+    <div className="relative hidden min-h-dvh flex-1 flex-col overflow-hidden bg-white lg:flex">
+      {/* Soft blue accent — keeps white-blue brand without overpowering the art */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-blue-50/80 via-white to-slate-50" />
+      <div className="pointer-events-none absolute -right-24 top-1/4 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
+      <div className="pointer-events-none absolute -left-16 bottom-1/4 h-64 w-64 rounded-full bg-blue-100/40 blur-2xl" />
+
+      <div className="relative z-10 flex items-center gap-2 p-10 xl:p-14">
+        <BarChart3 className="h-8 w-8 text-primary" strokeWidth={2.5} />
+        <span className="font-display text-2xl font-bold text-foreground">
+          {APP_NAME}
+        </span>
       </div>
 
-      <div className="relative z-10 mx-auto max-w-md space-y-6">
-        <div className="rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur-sm">
-          <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-white/20 p-3">
-              <Smartphone className="h-8 w-8" />
-            </div>
-            <div>
-              <p className="text-sm text-blue-100">Mobile-first platform</p>
-              <p className="font-display text-lg font-bold">Trade & earn anywhere</p>
-            </div>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="rounded-xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
-            <TrendingUp className="h-6 w-6 text-blue-200" />
-            <p className="mt-2 text-xs text-blue-100">Daily VIP income</p>
-            <p className="font-bold">Up to 1,357 Birr/day</p>
-          </div>
-          <div className="rounded-xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
-            <Shield className="h-6 w-6 text-blue-200" />
-            <p className="mt-2 text-xs text-blue-100">Secure wallet</p>
-            <p className="font-bold">Deposits & withdrawals</p>
-          </div>
-        </div>
+      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8 pb-10 xl:px-14">
+        <Image
+          src="/images/auth-hero.svg"
+          alt="Birr Tera platform illustration"
+          width={520}
+          height={340}
+          className="h-auto w-full max-w-lg object-contain"
+          priority
+        />
+        <p className="mt-8 max-w-sm text-center text-sm leading-relaxed text-muted">
+          Premium VIP membership & daily earnings in Birr (ETB). Deposit, invest,
+          and grow your portfolio on mobile.
+        </p>
       </div>
-
-      <p className="relative z-10 text-sm text-blue-100">
-        Premium VIP membership & earnings in Birr (ETB)
-      </p>
-
-      {/* Decorative shapes */}
-      <div className="pointer-events-none absolute -right-20 top-1/4 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-      <div className="pointer-events-none absolute -left-10 bottom-1/4 h-56 w-56 rounded-full bg-blue-300/20 blur-2xl" />
     </div>
   );
 }

@@ -8,7 +8,7 @@ type AuthPageShellProps = {
 export function AuthPageShell({ children }: AuthPageShellProps) {
   return (
     <div className="flex min-h-dvh flex-col lg:flex-row">
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col bg-white lg:bg-surface-bright">
         <div className="flex justify-end p-4 lg:absolute lg:right-auto lg:left-4 lg:top-4 lg:z-20">
           <LanguageSwitcher compact />
         </div>

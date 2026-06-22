@@ -1,18 +1,48 @@
 import { format } from "date-fns";
+import { AdminPagination } from "@/components/admin/admin-pagination";
+import { AdminStatusFilter } from "@/components/admin/admin-status-filter";
 import { ReviewActions } from "@/components/admin/review-actions";
 import { Card } from "@/components/ui/card";
-import { getAdminPendingWithdrawals, isAdminConfigured } from "@/lib/data/admin-queries";
-import { formatBirr } from "@/lib/utils";
+import {
+  parseAdminPage,
+  parseAdminStatus,
+} from "@/lib/admin-pagination";
+import { getAdminWithdrawals, isAdminConfigured } from "@/lib/data/admin-queries";
+import { cn, formatBirr } from "@/lib/utils";
 
-export default async function AdminWithdrawalsPage() {
-  const withdrawals = await getAdminPendingWithdrawals();
+type AdminWithdrawalsPageProps = {
+  searchParams: Promise<{ page?: string; status?: string }>;
+};
+
+function statusBadgeClass(status: string) {
+  if (status === "approved") return "bg-emerald-500/10 text-emerald-700";
+  if (status === "rejected") return "bg-red-500/10 text-red-700";
+  return "bg-amber-500/10 text-amber-700";
+}
+
+export default async function AdminWithdrawalsPage({
+  searchParams,
+}: AdminWithdrawalsPageProps) {
+  const params = await searchParams;
+  const page = parseAdminPage(params.page);
+  const status = parseAdminStatus(params.status);
+  const result = await getAdminWithdrawals({ page, status });
   const configured = isAdminConfigured();
+
+  const titles: Record<string, string> = {
+    pending: "Pending Withdrawals",
+    approved: "Approved Withdrawals",
+    rejected: "Rejected Withdrawals",
+    all: "All Withdrawals",
+  };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold">Pending Withdrawals</h1>
-        <p className="mt-1 text-sm text-muted">Approve or reject withdrawal requests.</p>
+        <h1 className="font-display text-2xl font-bold">{titles[status]}</h1>
+        <p className="mt-1 text-sm text-muted">
+          Approve, reject, or remove withdrawal requests.
+        </p>
       </div>
 
       {!configured && (
@@ -21,20 +51,34 @@ export default async function AdminWithdrawalsPage() {
         </Card>
       )}
 
+      <AdminStatusFilter basePath="/admin/withdrawals" current={status} />
+
       <Card>
-        {withdrawals.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted">No pending withdrawals.</p>
+        {result.items.length === 0 ? (
+          <p className="py-8 text-center text-sm text-muted">
+            No withdrawals found for this filter.
+          </p>
         ) : (
           <div className="space-y-4">
-            {withdrawals.map((withdrawal) => (
+            {result.items.map((withdrawal) => (
               <div
                 key={withdrawal.id}
                 className="flex flex-col gap-3 border-b border-border pb-4 last:border-0 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
-                  <p className="font-semibold">
-                    {withdrawal.profiles?.full_name ?? "Unknown"}
-                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-semibold">
+                      {withdrawal.profiles?.full_name ?? "Unknown"}
+                    </p>
+                    <span
+                      className={cn(
+                        "rounded-full px-2 py-0.5 text-xs font-medium capitalize",
+                        statusBadgeClass(withdrawal.status)
+                      )}
+                    >
+                      {withdrawal.status}
+                    </span>
+                  </div>
                   <p className="text-xs text-muted">{withdrawal.profiles?.email}</p>
                   <p className="mt-1 text-sm font-medium text-primary">
                     {formatBirr(withdrawal.amount)}
@@ -47,11 +91,23 @@ export default async function AdminWithdrawalsPage() {
                     {format(new Date(withdrawal.created_at), "MMM d, yyyy HH:mm")}
                   </p>
                 </div>
-                <ReviewActions id={withdrawal.id} type="withdrawal" />
+                <ReviewActions
+                  id={withdrawal.id}
+                  type="withdrawal"
+                  status={withdrawal.status}
+                />
               </div>
             ))}
           </div>
         )}
+
+        <AdminPagination
+          page={result.page}
+          totalPages={result.totalPages}
+          total={result.total}
+          basePath="/admin/withdrawals"
+          params={{ status: status === "pending" ? undefined : status }}
+        />
       </Card>
     </div>
   );

@@ -151,10 +151,6 @@ body::after {
     padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
   }
 
-  .auth-hero-panel {
-    background: linear-gradient(145deg, #1e40af 0%, #2563eb 45%, #3b82f6 100%);
-  }
-
   .vip-list-row {
     @apply flex flex-col gap-3 rounded-xl border border-border bg-surface px-4 py-4 transition-colors hover:border-primary/25 sm:flex-row sm:items-center sm:justify-between;
   }
