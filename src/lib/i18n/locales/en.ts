@@ -1,6 +1,6 @@
 export const en = {
   common: {
-    appName: "Birr Tera",
+    appName: "GoGenzeb",
     tagline: "Premium earnings, crafted for you",
     menu: "Menu",
     member: "Member",
@@ -43,7 +43,7 @@ export const en = {
     signingIn: "Signing in…",
     signInSubtitle: "Welcome back — access your account",
     register: "Create account",
-    registerSubtitle: "Join Birr Tera and start earning",
+    registerSubtitle: "Join GoGenzeb and start earning",
     forgotPassword: "Forgot password?",
     forgotSubtitle: "We will send you a reset link",
     email: "Email address",

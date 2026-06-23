@@ -20,7 +20,7 @@ export function isSupabaseConfigured(): boolean {
 export const DEMO_PROFILE: Profile = {
   id: "00000000-0000-0000-0000-000000000001",
   full_name: "Demo User",
-  email: "demo@birrtera.com",
+  email: "demo@gogenzeb.com",
   referral_code: "BT-DEMO123",
   referred_by: null,
   role: "user",

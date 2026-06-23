@@ -1,6 +1,6 @@
 export const om = {
   common: {
-    appName: "Birr Tera",
+    appName: "GoGenzeb",
     tagline: "Galii addaa, siif kan hojjetame",
     menu: "Baafata",
     member: "Miseensa",
@@ -43,7 +43,7 @@ export const om = {
     signingIn: "Seenaa jira…",
     signInSubtitle: "Baga nagaan deebitan — herrega kee seeni",
     register: "Herrega uumi",
-    registerSubtitle: "Birr Tera waliin galii jalqabi",
+    registerSubtitle: "GoGenzeb waliin galii jalqabi",
     forgotPassword: "Jecha iccitii dagatte?",
     forgotSubtitle: "Linkii deebisuu siif ergina",
     email: "Imeelii",

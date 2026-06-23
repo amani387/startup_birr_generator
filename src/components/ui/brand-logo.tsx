@@ -6,7 +6,7 @@ type BrandLogoProps = {
   showBackground?: boolean;
 };
 
-/** Inline Top Mela mark — ascending bars + peak (distinct from generic crown/star logos). */
+/** Inline GoGenzeb mark — ascending bars + peak (distinct from generic crown/star logos). */
 export function BrandLogo({
   className,
   size = 36,

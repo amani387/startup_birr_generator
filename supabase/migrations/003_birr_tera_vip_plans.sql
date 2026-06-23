@@ -1,4 +1,4 @@
--- Birr Tera: update VIP plans to 6 tiers with new pricing
+-- GoGenzeb: update VIP plans to 6 tiers with new pricing
 
 update public.vip_plans set active = false where level <= 5;
 

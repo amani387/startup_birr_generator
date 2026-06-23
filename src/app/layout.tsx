@@ -3,6 +3,7 @@ import { Inter, Montserrat, Noto_Sans_Ethiopic } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import { AppProviders } from "@/components/providers/app-providers";
 import { getAppUrl } from "@/lib/app-url";
+import { APP_NAME } from "@/lib/constants";
 import type { Locale } from "@/lib/i18n/index";
 import "./globals.css";
 
@@ -26,7 +27,7 @@ const notoEthiopic = Noto_Sans_Ethiopic({
 
 export const metadata: Metadata = {
   metadataBase: new URL(getAppUrl()),
-  title: "Birr Tera — VIP Membership & Earnings",
+  title: `${APP_NAME} — VIP Membership & Earnings`,
   description: "Premium VIP membership and forex-style earnings platform in Birr",
   manifest: "/manifest.webmanifest",
   icons: {
@@ -37,7 +38,7 @@ export const metadata: Metadata = {
     apple: [{ url: "/apple-icon", type: "image/png", sizes: "180x180" }],
     shortcut: "/icon",
   },
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "Birr Tera" },
+  appleWebApp: { capable: true, statusBarStyle: "default", title: APP_NAME },
 };
 
 export const viewport: Viewport = {

@@ -1,4 +1,4 @@
-export const APP_NAME = "Birr Tera";
+export const APP_NAME = "GoGenzeb";
 
 /** Only this account can promote or demote admin roles. Cannot be deleted. */
 export const SUPER_ADMIN_EMAIL = "amanaminte@gmail.com";

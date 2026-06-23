@@ -1,4 +1,4 @@
-# Top Mela
+# GoGenzeb
 
 VIP Membership & Earnings Platform built with **Next.js** and **Supabase**.
 

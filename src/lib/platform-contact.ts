@@ -20,7 +20,7 @@ export const DEFAULT_PLATFORM_CONTACT: PlatformContactSettings = {
   telebirr_phone: "0929025757",
   telebirr_account_holder: "Abera",
   cbe_account_number: "Contact support for details",
-  cbe_account_holder: "Birr Tera",
+  cbe_account_holder: "GoGenzeb",
   youtube_channel_url: "https://youtube.com",
   telegram_group_url: "https://t.me",
   telegram_channel_url: "https://t.me",

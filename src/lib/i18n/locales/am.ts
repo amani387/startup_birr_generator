@@ -1,6 +1,6 @@
 export const am = {
   common: {
-    appName: "Birr Tera",
+    appName: "GoGenzeb",
     tagline: "ፕሪሚየም ገቢ፣ ለእርስዎ የተሰራ",
     menu: "ምናሌ",
     member: "አባል",
@@ -43,7 +43,7 @@ export const am = {
     signingIn: "በመግባት ላይ…",
     signInSubtitle: "እንኳን ደህና ተመለሱ — ወደ መለያዎ ይግቡ",
     register: "መለያ ፍጠር",
-    registerSubtitle: "Birr Tera ይቀላቀሉ እና ገቢ ጀምሩ",
+    registerSubtitle: "GoGenzeb ይቀላቀሉ እና ገቢ ጀምሩ",
     forgotPassword: "የይለፍ ቃል ረሱ?",
     forgotSubtitle: "የ_reset_ሊንክ_ እንልክልዎታለን",
     email: "ኢሜይል",

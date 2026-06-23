@@ -20,7 +20,7 @@ export function AuthHeroPanel() {
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8 pb-10 xl:px-14">
         <Image
           src="/images/auth-hero.svg"
-          alt="Birr Tera platform illustration"
+          alt="GoGenzeb platform illustration"
           width={520}
           height={340}
           className="h-auto w-full max-w-lg object-contain"
