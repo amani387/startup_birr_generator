@@ -6,11 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { requireProfile } from "@/lib/data/profile";
 import { getDeposits } from "@/lib/data/queries";
+import { getDepositPaymentMethods } from "@/lib/data/platform-settings";
 import { formatBirr } from "@/lib/utils";
 
 export default async function DepositsPage() {
   const profile = await requireProfile();
-  const deposits = await getDeposits(profile.id);
+  const [deposits, paymentMethods] = await Promise.all([
+    getDeposits(profile.id),
+    getDepositPaymentMethods(),
+  ]);
   const approvedTotal = deposits
     .filter((d) => d.status === "approved")
     .reduce((sum, d) => sum + d.amount, 0);
@@ -34,7 +38,7 @@ export default async function DepositsPage() {
         </div>
       </Card>
 
-      <DepositFlow />
+      <DepositFlow paymentMethods={paymentMethods} />
 
       <Card>
         <h3 className="mb-4 font-bold">Deposit History</h3>

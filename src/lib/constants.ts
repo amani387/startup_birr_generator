@@ -20,75 +20,68 @@ export type SocialTask = {
   href: string;
 };
 
-/** Configure links via NEXT_PUBLIC_* env vars on the server. */
-export const SOCIAL_TASKS: SocialTask[] = [
+export type SocialTaskTemplate = Omit<SocialTask, "href">;
+
+/** Task definitions — links come from admin platform settings. */
+export const SOCIAL_TASK_TEMPLATES: SocialTaskTemplate[] = [
   {
     id: "facebook_follow",
     label: "Follow our Facebook page",
     reward: 1.0,
     platform: "facebook",
-    href: process.env.NEXT_PUBLIC_FACEBOOK_PAGE_URL ?? "https://facebook.com",
   },
   {
     id: "facebook_share",
     label: "Share a Facebook post publicly",
     reward: 2.0,
     platform: "facebook",
-    href: process.env.NEXT_PUBLIC_FACEBOOK_SHARE_URL ?? "https://facebook.com",
   },
   {
     id: "facebook_comment",
     label: "Comment on a Facebook post",
     reward: 1.5,
     platform: "facebook",
-    href: process.env.NEXT_PUBLIC_FACEBOOK_COMMENT_URL ?? "https://facebook.com",
   },
   {
     id: "telegram_invite",
     label: "Invite 10 friends to our Telegram group",
     reward: 5.0,
     platform: "telegram",
-    href: process.env.NEXT_PUBLIC_TELEGRAM_GROUP_URL ?? "https://t.me",
   },
   {
     id: "telegram_join",
     label: "Join our Telegram channel",
     reward: 1.0,
     platform: "telegram",
-    href: process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL_URL ?? "https://t.me",
   },
   {
     id: "youtube_subscribe",
     label: "Subscribe to our YouTube channel",
     reward: 2.0,
     platform: "youtube",
-    href: process.env.NEXT_PUBLIC_YOUTUBE_CHANNEL_URL ?? "https://youtube.com",
   },
   {
     id: "youtube_like",
     label: "Like a YouTube video",
     reward: 1.0,
     platform: "youtube",
-    href: process.env.NEXT_PUBLIC_YOUTUBE_LIKE_URL ?? "https://youtube.com",
   },
   {
     id: "youtube_comment",
     label: "Comment on a YouTube video",
     reward: 1.5,
     platform: "youtube",
-    href: process.env.NEXT_PUBLIC_YOUTUBE_COMMENT_URL ?? "https://youtube.com",
   },
   {
     id: "youtube_watch",
     label: "Watch a video for 2–3 minutes",
     reward: 2.0,
     platform: "youtube",
-    href: process.env.NEXT_PUBLIC_YOUTUBE_WATCH_URL ?? "https://youtube.com",
   },
 ];
 
-export function getSocialTaskById(taskId: string): SocialTask | undefined {
-  return SOCIAL_TASKS.find((task) => task.id === taskId);
+export function getSocialTaskById(taskId: string): SocialTaskTemplate | undefined {
+  return SOCIAL_TASK_TEMPLATES.find((task) => task.id === taskId);
 }
 
 export const WITHDRAWAL_RULES = {
@@ -139,35 +132,6 @@ export type DepositPaymentMethod = {
   accountHolder: string;
   instructions: string[];
 };
-
-export const DEPOSIT_PAYMENT_METHODS: DepositPaymentMethod[] = [
-  {
-    id: "telebirr",
-    name: "Telebirr (Ethio Telecom)",
-    bankName: "Telebirr (Ethio Telecom)",
-    accountNumber: "0929025757",
-    accountHolder: "Abera",
-    instructions: [
-      "Copy the account number above",
-      "Transfer the exact VIP package amount using your bank app",
-      "Take a screenshot of the payment confirmation",
-      "Press the button below and fill in your details",
-    ],
-  },
-  {
-    id: "bank",
-    name: "Bank Transfer",
-    bankName: "Commercial Bank of Ethiopia",
-    accountNumber: "Contact support for details",
-    accountHolder: "Birr Tera",
-    instructions: [
-      "Contact support to receive bank account details",
-      "Transfer the exact VIP package amount",
-      "Take a screenshot of the payment confirmation",
-      "Press the button below and fill in your details",
-    ],
-  },
-];
 
 export function getReferralRewardForLevel(vipLevel: number): number {
   return VIP_REFERRAL_REWARDS.find((r) => r.level === vipLevel)?.reward ?? 0;

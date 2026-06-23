@@ -17,9 +17,17 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: projectRoot,
   },
+  async redirects() {
+    return [
+      {
+        source: "/favicon.ico",
+        destination: "/icon",
+        permanent: false,
+      },
+    ];
+  },
   async rewrites() {
     return [
-      { source: "/favicon.ico", destination: "/icon" },
       { source: "/logo.png", destination: "/logo.svg" },
       { source: "/dashboard/logo.png", destination: "/logo.svg" },
     ];

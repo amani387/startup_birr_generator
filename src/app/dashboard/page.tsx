@@ -30,6 +30,7 @@ import {
   getPlatformSetting,
   getRecentActivity,
 } from "@/lib/data/queries";
+import { getSocialTasks } from "@/lib/data/platform-settings";
 import { getTodayClaimedTaskIds } from "@/lib/data/tasks";
 import { calculateBoostedVipDailyIncome } from "@/lib/forex";
 import { getTranslations } from "@/lib/i18n/server";
@@ -52,7 +53,7 @@ function activityBadge(
 export default async function DashboardPage() {
   const profile = await requireProfile();
   const t = await getTranslations();
-  const [nextPlan, activePurchase, activity, rewardAmount, streakBonusDay, claimedTaskIds, forexInterestRate] =
+  const [nextPlan, activePurchase, activity, rewardAmount, streakBonusDay, claimedTaskIds, forexInterestRate, socialTasks] =
     await Promise.all([
       getNextVipPlan(profile.vip_level),
       getActiveVipPurchase(profile.id),
@@ -61,6 +62,7 @@ export default async function DashboardPage() {
       getPlatformSetting("daily_streak_bonus_day", 7),
       getTodayClaimedTaskIds(profile.id),
       getPlatformSetting("forex_interest_rate", 1.15),
+      getSocialTasks(),
     ]);
 
   const { progressPercent, amountToNext } = getVipProgress(
@@ -130,6 +132,7 @@ export default async function DashboardPage() {
       <div className="bento-grid">
         <div className="md:col-span-12">
           <SocialTasksPanel
+            socialTasks={socialTasks}
             claimedTaskIds={claimedTaskIds}
             vipLevel={profile.vip_level}
             forexInterestRate={forexInterestRate}

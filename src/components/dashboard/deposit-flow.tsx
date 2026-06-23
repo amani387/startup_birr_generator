@@ -15,22 +15,23 @@ import { FormMessage } from "@/components/auth/form-message";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { DEPOSIT_PAYMENT_METHODS, type DepositPaymentMethod } from "@/lib/constants";
+import { type DepositPaymentMethod } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 type DepositFlowProps = {
+  paymentMethods: DepositPaymentMethod[];
   onMethodChange?: (method: DepositPaymentMethod | null) => void;
 };
 
-export function DepositFlow({ onMethodChange }: DepositFlowProps) {
+export function DepositFlow({ paymentMethods, onMethodChange }: DepositFlowProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
 
   const selectedMethod =
-    DEPOSIT_PAYMENT_METHODS.find((method) => method.id === selectedId) ?? null;
+    paymentMethods.find((method) => method.id === selectedId) ?? null;
 
   function selectMethod(id: string) {
-    const method = DEPOSIT_PAYMENT_METHODS.find((m) => m.id === id) ?? null;
+    const method = paymentMethods.find((m) => m.id === id) ?? null;
     setSelectedId(id);
     setShowForm(false);
     onMethodChange?.(method);
@@ -71,7 +72,7 @@ export function DepositFlow({ onMethodChange }: DepositFlowProps) {
 
   return (
     <div className="space-y-3">
-      {DEPOSIT_PAYMENT_METHODS.map((method) => (
+      {paymentMethods.map((method) => (
         <button
           key={method.id}
           type="button"

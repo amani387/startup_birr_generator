@@ -19,7 +19,7 @@ import {
 import { claimSocialTask } from "@/lib/actions/tasks";
 import {
   FOREX_TRADE,
-  SOCIAL_TASKS,
+  type SocialTask,
   type SocialTaskPlatform,
 } from "@/lib/constants";
 import { celebrateReward } from "@/lib/confetti";
@@ -46,6 +46,7 @@ const PLATFORM_COLORS: Record<SocialTaskPlatform, string> = {
 };
 
 type SocialTasksPanelProps = {
+  socialTasks: SocialTask[];
   claimedTaskIds: string[];
   vipLevel: number;
   forexInterestRate: number;
@@ -53,6 +54,7 @@ type SocialTasksPanelProps = {
 };
 
 export function SocialTasksPanel({
+  socialTasks,
   claimedTaskIds,
   vipLevel,
   forexInterestRate,
@@ -64,7 +66,7 @@ export function SocialTasksPanel({
   const [pendingTaskId, setPendingTaskId] = useState<string | null>(null);
 
   const claimedSet = new Set(claimedTaskIds);
-  const socialCompleted = SOCIAL_TASKS.filter((t) => claimedSet.has(t.id)).length;
+  const socialCompleted = socialTasks.filter((t) => claimedSet.has(t.id)).length;
   const forexUnlocked = vipLevel > 0;
   const boostedDaily =
     baseDailyIncome > 0
@@ -110,8 +112,8 @@ export function SocialTasksPanel({
                 </p>
               </div>
             </div>
-            <span className="rounded-full border border-primary/20 bg-white px-3 py-1 text-xs font-semibold text-primary shadow-sm">
-              {socialCompleted}/{SOCIAL_TASKS.length} social today
+            <span className="rounded-full border border-primary/20 bg-surface px-3 py-1 text-xs font-semibold text-primary shadow-sm">
+              {socialCompleted}/{socialTasks.length} social today
             </span>
           </div>
         </div>
@@ -123,8 +125,8 @@ export function SocialTasksPanel({
             className={cn(
               "group relative block overflow-hidden rounded-2xl border-2 p-4 transition-all hover:scale-[1.01] hover:shadow-lg sm:p-5",
               forexUnlocked
-                ? "border-amber-400/60 bg-gradient-to-br from-amber-50 via-yellow-50/80 to-amber-100/50 shadow-[0_0_24px_rgba(251,191,36,0.15)]"
-                : "border-amber-400/40 bg-gradient-to-br from-amber-50 via-white to-yellow-50 shadow-[0_4px_20px_rgba(245,158,11,0.12)]"
+                ? "border-amber-400/60 bg-gradient-to-br from-amber-50 via-yellow-50/80 to-amber-100/50 shadow-[0_0_24px_rgba(251,191,36,0.15)] dark:from-amber-950/40 dark:via-amber-950/20 dark:to-yellow-950/30 dark:shadow-[0_0_24px_rgba(251,191,36,0.08)]"
+                : "border-amber-400/40 bg-gradient-to-br from-amber-50 via-white to-yellow-50 shadow-[0_4px_20px_rgba(245,158,11,0.12)] dark:from-amber-950/30 dark:via-surface dark:to-yellow-950/20 dark:shadow-[0_4px_20px_rgba(245,158,11,0.06)]"
             )}
           >
             <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-amber-400/20 blur-2xl" />
@@ -137,27 +139,27 @@ export function SocialTasksPanel({
                 </div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-800">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-200">
                       <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
                       Featured
                     </span>
                     {forexUnlocked && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold uppercase text-emerald-700">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold uppercase text-emerald-700 dark:text-emerald-300">
                         <CheckCircle2 className="h-3 w-3" />
                         Active
                       </span>
                     )}
                   </div>
-                  <h4 className="mt-1 font-display text-lg font-bold text-amber-950">
+                  <h4 className="mt-1 font-display text-lg font-bold text-amber-950 dark:text-amber-100">
                     Earn with our forex trade
                   </h4>
-                  <p className="mt-1 text-sm leading-relaxed text-amber-900/80">
+                  <p className="mt-1 text-sm leading-relaxed text-amber-900/80 dark:text-amber-100/75">
                     {forexUnlocked
                       ? `VIP ${vipLevel} unlocked — daily income boosted with forex rate × ${forexInterestRate} + level bonus.`
                       : "Purchase any VIP package to unlock boosted daily forex income."}
                   </p>
                   {forexUnlocked && boostedDaily !== null && (
-                    <p className="mt-2 inline-flex items-center gap-1.5 text-sm font-bold text-amber-800">
+                    <p className="mt-2 inline-flex items-center gap-1.5 text-sm font-bold text-amber-800 dark:text-amber-200">
                       <TrendingUp className="h-4 w-4" />
                       Boosted daily: {formatBirr(boostedDaily)}
                     </p>
@@ -167,7 +169,7 @@ export function SocialTasksPanel({
 
               <div className="flex shrink-0 items-center gap-2 sm:flex-col sm:items-end">
                 {forexUnlocked ? (
-                  <div className="flex items-center gap-2 rounded-xl bg-amber-500/20 px-3 py-2 text-sm font-semibold text-amber-900">
+                  <div className="flex items-center gap-2 rounded-xl bg-amber-500/20 px-3 py-2 text-sm font-semibold text-amber-900 dark:text-amber-100">
                     <Crown className="h-4 w-4" />
                     VIP {vipLevel}
                   </div>
@@ -187,7 +189,7 @@ export function SocialTasksPanel({
               Social rewards
             </p>
             <ul className="max-h-[min(60vh,480px)] space-y-2 overflow-y-auto overscroll-contain pr-1">
-              {SOCIAL_TASKS.map((task) => {
+              {socialTasks.map((task) => {
                 const done = claimedSet.has(task.id);
                 const Icon = PLATFORM_ICON[task.platform];
                 const isClaiming = pending && pendingTaskId === task.id;
@@ -231,7 +233,7 @@ export function SocialTasksPanel({
                           href={task.href}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-border bg-white px-3 text-xs font-semibold text-foreground transition-colors hover:border-primary/30 hover:bg-primary/5"
+                          className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-border bg-surface-bright px-3 text-xs font-semibold text-foreground transition-colors hover:border-primary/30 hover:bg-primary/5"
                         >
                           Open
                           <ExternalLink className="h-3.5 w-3.5" />

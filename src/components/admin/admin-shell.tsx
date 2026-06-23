@@ -9,6 +9,7 @@ import {
   LogOut,
   TrendingUp,
   Users,
+  Settings,
   Zap,
 } from "lucide-react";
 import { logout } from "@/lib/actions/auth";
@@ -22,6 +23,7 @@ const ADMIN_NAV = [
   { href: "/admin/withdrawals", label: "Withdrawals", icon: ArrowLeftRight },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/vip-income", label: "VIP Income", icon: Zap },
+  { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
 type AdminShellProps = {

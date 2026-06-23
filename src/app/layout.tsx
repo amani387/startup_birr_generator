@@ -31,11 +31,11 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
-      { url: "/icon.svg", type: "image/svg+xml", sizes: "any" },
+      { url: "/icon", type: "image/png", sizes: "32x32" },
       { url: "/logo.svg", type: "image/svg+xml", sizes: "128x128" },
     ],
-    apple: [{ url: "/logo.svg", type: "image/svg+xml", sizes: "180x180" }],
-    shortcut: "/icon.svg",
+    apple: [{ url: "/apple-icon", type: "image/png", sizes: "180x180" }],
+    shortcut: "/icon",
   },
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Birr Tera" },
 };
