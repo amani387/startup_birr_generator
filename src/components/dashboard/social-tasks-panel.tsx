@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import {
   ArrowRight,
   CheckCircle2,
@@ -19,6 +19,7 @@ import {
 import { claimSocialTask } from "@/lib/actions/tasks";
 import {
   FOREX_TRADE,
+  SOCIAL_TASK_CLAIM_DELAY_SECONDS,
   type SocialTask,
   type SocialTaskPlatform,
 } from "@/lib/constants";
@@ -64,6 +65,39 @@ export function SocialTasksPanel({
   const { showError, showSuccess } = useFeedback();
   const [pending, startTransition] = useTransition();
   const [pendingTaskId, setPendingTaskId] = useState<string | null>(null);
+  /** taskId → timestamp (ms) when Claim becomes available */
+  const [claimUnlockAt, setClaimUnlockAt] = useState<Record<string, number>>({});
+  const [, setTick] = useState(0);
+
+  const hasActiveCountdown = Object.values(claimUnlockAt).some(
+    (unlockAt) => unlockAt > Date.now()
+  );
+
+  useEffect(() => {
+    if (!hasActiveCountdown) return;
+    const timer = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(timer);
+  }, [hasActiveCountdown]);
+
+  function handleOpenTask(taskId: string) {
+    setClaimUnlockAt((prev) => ({
+      ...prev,
+      [taskId]: Date.now() + SOCIAL_TASK_CLAIM_DELAY_SECONDS * 1000,
+    }));
+  }
+
+  function getClaimButtonState(taskId: string, done: boolean) {
+    if (done) {
+      return { disabled: true, label: "Claimed" as const };
+    }
+
+    const unlockAt = claimUnlockAt[taskId];
+    if (!unlockAt || unlockAt > Date.now()) {
+      return { disabled: true, label: "Claim" as const };
+    }
+
+    return { disabled: false, label: "Claim" as const };
+  }
 
   const claimedSet = new Set(claimedTaskIds);
   const socialCompleted = socialTasks.filter((t) => claimedSet.has(t.id)).length;
@@ -193,6 +227,7 @@ export function SocialTasksPanel({
                 const done = claimedSet.has(task.id);
                 const Icon = PLATFORM_ICON[task.platform];
                 const isClaiming = pending && pendingTaskId === task.id;
+                const claimState = getClaimButtonState(task.id, done);
 
                 return (
                   <li
@@ -233,6 +268,7 @@ export function SocialTasksPanel({
                           href={task.href}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={() => handleOpenTask(task.id)}
                           className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-border bg-surface-bright px-3 text-xs font-semibold text-foreground transition-colors hover:border-primary/30 hover:bg-primary/5"
                         >
                           Open
@@ -240,14 +276,10 @@ export function SocialTasksPanel({
                         </a>
                         <Button
                           size="sm"
-                          disabled={done || pending}
+                          disabled={done || pending || claimState.disabled}
                           onClick={() => handleClaim(task.id)}
                         >
-                          {isClaiming
-                            ? "Claiming..."
-                            : done
-                              ? "Claimed"
-                              : "Claim"}
+                          {isClaiming ? "Claiming..." : claimState.label}
                         </Button>
                       </div>
                     </div>

@@ -84,6 +84,9 @@ export function getSocialTaskById(taskId: string): SocialTaskTemplate | undefine
   return SOCIAL_TASK_TEMPLATES.find((task) => task.id === taskId);
 }
 
+/** Seconds to wait after opening a task link before Claim unlocks */
+export const SOCIAL_TASK_CLAIM_DELAY_SECONDS = 15;
+
 export const WITHDRAWAL_RULES = {
   minBalanceToUnlock: 700,
   retentionPercent: 30,
