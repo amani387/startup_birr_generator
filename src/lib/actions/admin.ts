@@ -15,6 +15,69 @@ async function assertAdmin() {
   return profile;
 }
 
+async function purgeUserDataForDeletion(
+  admin: ReturnType<typeof createAdminClient>,
+  userId: string
+): Promise<string | null> {
+  const { data: deposits } = await admin
+    .from("deposits")
+    .select("screenshot_url")
+    .eq("user_id", userId);
+
+  const screenshotPaths = (deposits ?? [])
+    .map((row) => row.screenshot_url)
+    .filter((path): path is string => Boolean(path));
+
+  if (screenshotPaths.length > 0) {
+    await admin.storage.from("deposits").remove(screenshotPaths);
+  }
+
+  await admin.from("profiles").update({ referred_by: null }).eq("referred_by", userId);
+  await admin.from("deposits").update({ reviewed_by: null }).eq("reviewed_by", userId);
+  await admin.from("withdrawals").update({ reviewed_by: null }).eq("reviewed_by", userId);
+
+  const { data: purchases } = await admin
+    .from("vip_purchases")
+    .select("id")
+    .eq("user_id", userId);
+
+  const purchaseIds = (purchases ?? []).map((row) => row.id);
+
+  if (purchaseIds.length > 0) {
+    const { error } = await admin
+      .from("referral_commissions")
+      .delete()
+      .in("vip_purchase_id", purchaseIds);
+    if (error) return error.message;
+  }
+
+  const { error: commissionError } = await admin
+    .from("referral_commissions")
+    .delete()
+    .or(`beneficiary_id.eq.${userId},source_user_id.eq.${userId}`);
+
+  if (commissionError) return commissionError.message;
+
+  const userTables = [
+    "vip_income_claims",
+    "task_reward_claims",
+    "daily_reward_claims",
+    "notifications",
+    "earnings",
+    "vip_purchases",
+    "deposits",
+    "withdrawals",
+    "withdrawal_settings",
+  ] as const;
+
+  for (const table of userTables) {
+    const { error } = await admin.from(table).delete().eq("user_id", userId);
+    if (error) return error.message;
+  }
+
+  return null;
+}
+
 export async function reviewDeposit(
   depositId: string,
   action: "approved" | "rejected",
@@ -229,6 +292,11 @@ export async function deleteUser(userId: string): Promise<ActionResult> {
   if (!target) return { error: "User not found." };
   if (isSuperAdminEmail(target.email)) {
     return { error: "The super admin account cannot be deleted." };
+  }
+
+  const purgeError = await purgeUserDataForDeletion(admin, userId);
+  if (purgeError) {
+    return { error: `Could not delete user data: ${purgeError}` };
   }
 
   const { error } = await admin.auth.admin.deleteUser(userId);

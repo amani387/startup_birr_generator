@@ -5,7 +5,7 @@ VALUES ('forex_interest_rate', '1.15')
 ON CONFLICT (key) DO NOTHING;
 
 INSERT INTO public.platform_settings (key, value)
-VALUES ('withdrawal_required_referrals', '4')
+VALUES ('withdrawal_required_referrals', '2')
 ON CONFLICT (key) DO NOTHING;
 
 -- Boosted VIP daily income when user has VIP (forex trade unlocked)

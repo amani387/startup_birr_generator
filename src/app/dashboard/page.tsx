@@ -31,7 +31,7 @@ import {
   getRecentActivity,
 } from "@/lib/data/queries";
 import { getSocialTasks } from "@/lib/data/platform-settings";
-import { getTodayClaimedTaskIds } from "@/lib/data/tasks";
+import { getClaimedTaskIds } from "@/lib/data/tasks";
 import { calculateBoostedVipDailyIncome } from "@/lib/forex";
 import { getTranslations } from "@/lib/i18n/server";
 import { formatBirr } from "@/lib/utils";
@@ -60,7 +60,7 @@ export default async function DashboardPage() {
       getRecentActivity(profile.id),
       getPlatformSetting("daily_reward_amount", 5),
       getPlatformSetting("daily_streak_bonus_day", 7),
-      getTodayClaimedTaskIds(profile.id),
+      getClaimedTaskIds(profile.id),
       getPlatformSetting("forex_interest_rate", 1.15),
       getSocialTasks(),
     ]);

@@ -147,7 +147,7 @@ export function SocialTasksPanel({
               </div>
             </div>
             <span className="rounded-full border border-primary/20 bg-surface px-3 py-1 text-xs font-semibold text-primary shadow-sm">
-              {socialCompleted}/{socialTasks.length} social today
+              {socialCompleted}/{socialTasks.length} completed
             </span>
           </div>
         </div>

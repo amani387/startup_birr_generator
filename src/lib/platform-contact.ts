@@ -35,12 +35,9 @@ export const PLATFORM_CONTACT_KEYS = Object.keys(
 const SOCIAL_TASK_HREF_KEY: Record<string, keyof PlatformContactSettings> = {
   facebook_follow: "facebook_page_url",
   facebook_share: "facebook_page_url",
-  facebook_comment: "facebook_page_url",
   telegram_invite: "telegram_group_url",
   telegram_join: "telegram_channel_url",
   youtube_subscribe: "youtube_channel_url",
-  youtube_like: "youtube_channel_url",
-  youtube_comment: "youtube_channel_url",
   youtube_watch: "youtube_channel_url",
 };
 

@@ -28,10 +28,15 @@ const ADMIN_NAV = [
 
 type AdminShellProps = {
   userName: string;
+  canReturnToUserDashboard: boolean;
   children: React.ReactNode;
 };
 
-export function AdminShell({ userName, children }: AdminShellProps) {
+export function AdminShell({
+  userName,
+  canReturnToUserDashboard,
+  children,
+}: AdminShellProps) {
   const pathname = usePathname();
 
   return (
@@ -47,12 +52,14 @@ export function AdminShell({ userName, children }: AdminShellProps) {
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
             <ThemeToggle compact />
-            <Link
-              href="/dashboard"
-              className="hidden text-xs text-muted hover:text-primary sm:inline"
-            >
-              User dashboard
-            </Link>
+            {canReturnToUserDashboard ? (
+              <Link
+                href="/dashboard"
+                className="hidden text-xs text-muted hover:text-primary sm:inline"
+              >
+                User dashboard
+              </Link>
+            ) : null}
             <span className="hidden text-sm text-muted sm:inline">{userName}</span>
             <form action={logout}>
               <button

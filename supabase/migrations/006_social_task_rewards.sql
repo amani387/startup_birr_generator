@@ -1,4 +1,4 @@
--- Social task reward claims (once per task per day)
+-- Social task reward claims (one-time per task per user)
 
 DO $$ BEGIN
   ALTER TYPE earning_type ADD VALUE 'task_reward';

@@ -22,7 +22,7 @@ export type SocialTask = {
 
 export type SocialTaskTemplate = Omit<SocialTask, "href">;
 
-/** Task definitions — links come from admin platform settings. */
+/** Six one-time social tasks — links come from admin platform settings. */
 export const SOCIAL_TASK_TEMPLATES: SocialTaskTemplate[] = [
   {
     id: "facebook_follow",
@@ -37,39 +37,21 @@ export const SOCIAL_TASK_TEMPLATES: SocialTaskTemplate[] = [
     platform: "facebook",
   },
   {
-    id: "facebook_comment",
-    label: "Comment on a Facebook post",
-    reward: 1.5,
-    platform: "facebook",
-  },
-  {
-    id: "telegram_invite",
-    label: "Invite 10 friends to our Telegram group",
-    reward: 5.0,
-    platform: "telegram",
-  },
-  {
     id: "telegram_join",
     label: "Join our Telegram channel",
     reward: 1.0,
     platform: "telegram",
   },
   {
+    id: "telegram_invite",
+    label: "Invite friends to our Telegram group",
+    reward: 5.0,
+    platform: "telegram",
+  },
+  {
     id: "youtube_subscribe",
     label: "Subscribe to our YouTube channel",
     reward: 2.0,
-    platform: "youtube",
-  },
-  {
-    id: "youtube_like",
-    label: "Like a YouTube video",
-    reward: 1.0,
-    platform: "youtube",
-  },
-  {
-    id: "youtube_comment",
-    label: "Comment on a YouTube video",
-    reward: 1.5,
     platform: "youtube",
   },
   {
@@ -92,7 +74,7 @@ export const WITHDRAWAL_RULES = {
   retentionPercent: 30,
   minWithdrawalAmount: 100,
   /** Direct referrals who registered required before first withdrawal */
-  requiredReferrals: 4,
+  requiredReferrals: 2,
 } as const;
 
 /** Forex trade VIP boost — daily income = base × rate + vip level */

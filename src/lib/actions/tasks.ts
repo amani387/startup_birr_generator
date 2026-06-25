@@ -13,7 +13,6 @@ export async function claimSocialTask(taskId: string): Promise<ActionResult> {
   const task = getSocialTaskById(taskId);
   if (!task) return { error: "Invalid task." };
 
-  const today = new Date().toISOString().slice(0, 10);
   const supabase = await createClient();
 
   const { data: existing } = await supabase
@@ -21,12 +20,13 @@ export async function claimSocialTask(taskId: string): Promise<ActionResult> {
     .select("id")
     .eq("user_id", profile.id)
     .eq("task_id", taskId)
-    .eq("claim_date", today)
     .maybeSingle();
 
   if (existing) {
-    return { error: "You already claimed this task today." };
+    return { error: "You already claimed this task." };
   }
+
+  const today = new Date().toISOString().slice(0, 10);
 
   const { error: claimError } = await supabase.from("task_reward_claims").insert({
     user_id: profile.id,
@@ -37,7 +37,7 @@ export async function claimSocialTask(taskId: string): Promise<ActionResult> {
 
   if (claimError) {
     if (claimError.code === "23505") {
-      return { error: "You already claimed this task today." };
+      return { error: "You already claimed this task." };
     }
     return { error: claimError.message };
   }

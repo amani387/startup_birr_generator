@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AdminShell } from "@/components/admin/admin-shell";
+import { isSuperAdminProfile } from "@/lib/auth/super-admin";
 import { requireAdmin } from "@/lib/data/profile";
 
 export default async function AdminLayout({
@@ -9,5 +10,12 @@ export default async function AdminLayout({
 }) {
   const profile = await requireAdmin();
 
-  return <AdminShell userName={profile.full_name}>{children}</AdminShell>;
+  return (
+    <AdminShell
+      userName={profile.full_name}
+      canReturnToUserDashboard={isSuperAdminProfile(profile)}
+    >
+      {children}
+    </AdminShell>
+  );
 }
