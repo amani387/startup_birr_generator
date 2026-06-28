@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { DEMO_VIP_PLANS, isSupabaseConfigured } from "@/lib/supabase/config";
+import { applyVipTierPricing } from "@/lib/vip-pricing";
 import type {
   ActivityItem,
   Deposit,
@@ -24,16 +25,18 @@ export async function getVipPlans(): Promise<VipPlan[]> {
 
   if (error || !data?.length) return DEMO_VIP_PLANS;
 
-  return data.map((row) => ({
-    id: row.id,
-    level: row.level,
-    name: row.name,
-    price: Number(row.price),
-    daily_income: Number(row.daily_income),
-    duration_days: row.duration_days,
-    total_return: Number(row.total_return),
-    active: row.active,
-  }));
+  return data.map((row) =>
+    applyVipTierPricing({
+      id: row.id,
+      level: row.level,
+      name: row.name,
+      price: Number(row.price),
+      daily_income: Number(row.daily_income),
+      duration_days: row.duration_days,
+      total_return: Number(row.total_return),
+      active: row.active,
+    })
+  );
 }
 
 export async function getNextVipPlan(currentLevel: number): Promise<VipPlan | null> {

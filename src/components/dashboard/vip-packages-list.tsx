@@ -36,18 +36,19 @@ export function VipPackagesList({
               <div>
                 <p className="font-bold text-foreground">{plan.name}</p>
                 <p className="text-xs text-muted">
-                  {plan.daily_income} Birr/day · Referral {formatBirr(referralReward)}
+                  {formatBirr(plan.price)} · {formatBirr(plan.daily_income)}/day
+                  · Referral {formatBirr(referralReward)} (15%)
                 </p>
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-4 sm:gap-8">
               <div className="min-w-[100px]">
-                <p className="text-xs text-muted">Cost</p>
+                <p className="text-xs text-muted">Package price</p>
                 <p className="font-bold text-primary">{formatBirr(plan.price)}</p>
               </div>
               <div className="min-w-[100px]">
-                <p className="text-xs text-muted">Daily reward</p>
+                <p className="text-xs text-muted">Daily earning</p>
                 <p className="font-bold text-foreground">
                   {formatBirr(plan.daily_income)}
                 </p>

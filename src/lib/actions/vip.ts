@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentProfile } from "@/lib/data/profile";
 import { createClient } from "@/lib/supabase/server";
+import { applyVipTierPricing } from "@/lib/vip-pricing";
 import type { ActionResult } from "@/types/database";
 
 export async function purchaseVipPlan(planId: string): Promise<ActionResult> {
@@ -19,13 +20,25 @@ export async function purchaseVipPlan(planId: string): Promise<ActionResult> {
 
   if (planError || !plan) return { error: "VIP plan not found." };
 
-  const price = Number(plan.price);
+  const canonical = applyVipTierPricing({
+    id: plan.id,
+    level: plan.level,
+    name: plan.name,
+    price: Number(plan.price),
+    daily_income: Number(plan.daily_income),
+    duration_days: plan.duration_days,
+    total_return: Number(plan.total_return),
+    active: plan.active,
+  });
+
+  const price = canonical.price;
+  const dailyIncome = canonical.daily_income;
   if (profile.balance < price) {
     return { error: "Insufficient balance. Please deposit first." };
   }
 
   const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + plan.duration_days);
+  expiresAt.setDate(expiresAt.getDate() + canonical.duration_days);
 
   const { data: purchase, error: purchaseError } = await supabase
     .from("vip_purchases")
@@ -33,7 +46,7 @@ export async function purchaseVipPlan(planId: string): Promise<ActionResult> {
       user_id: profile.id,
       plan_id: plan.id,
       amount_paid: price,
-      daily_income: plan.daily_income,
+      daily_income: dailyIncome,
       expires_at: expiresAt.toISOString(),
       status: "active",
     })
@@ -45,7 +58,7 @@ export async function purchaseVipPlan(planId: string): Promise<ActionResult> {
   }
 
   const newBalance = profile.balance - price;
-  const newVipLevel = Math.max(profile.vip_level, plan.level);
+  const newVipLevel = Math.max(profile.vip_level, canonical.level);
 
   const { error: profileError } = await supabase
     .from("profiles")
@@ -64,7 +77,7 @@ export async function purchaseVipPlan(planId: string): Promise<ActionResult> {
       {
         p_purchase_id: purchase.id,
         p_buyer_id: profile.id,
-        p_plan_level: plan.level,
+        p_plan_level: canonical.level,
         p_plan_price: price,
       }
     );
@@ -78,7 +91,7 @@ export async function purchaseVipPlan(planId: string): Promise<ActionResult> {
   revalidatePath("/dashboard/vip-packages");
   revalidatePath("/dashboard/referral");
   revalidatePath("/dashboard/affiliate");
-  return { success: `${plan.name} purchased successfully!` };
+  return { success: `${canonical.name} purchased successfully!` };
 }
 
 export async function claimVipDailyIncome(): Promise<ActionResult> {
